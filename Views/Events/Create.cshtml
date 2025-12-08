@@ -1,0 +1,61 @@
+@model VivuqeQRSystem.Models.Event
+
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card vivuqe-card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create New Event</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold">Event Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="e.g. Cairo University 2024" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Date" class="form-label fw-bold">Date</label>
+                                <input asp-for="Date" class="form-control" type="date" />
+                                <span asp-validation-for="Date" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Location" class="form-label fw-bold">Location</label>
+                                <input asp-for="Location" class="form-control" placeholder="Event Hall" />
+                                <span asp-validation-for="Location" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" asp-for="IsActive" />
+                            <label class="form-check-label" asp-for="IsActive">
+                                Active Event (Visible to users)
+                            </label>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Create Event
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

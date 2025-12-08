@@ -1,0 +1,80 @@
+@model VivuqeQRSystem.Models.Event
+
+@{
+    ViewData["Title"] = Model.Name + " - Seniors";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-action="Index">Events</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+            </ol>
+        </nav>
+        <h2 class="mb-0">
+            <i class="fas fa-users me-2"></i>@Model.Name
+        </h2>
+        <span class="text-white-50">
+            <i class="fas fa-calendar me-1"></i> @Model.Date.ToShortDateString() • 
+            <i class="fas fa-map-marker-alt me-1"></i> @Model.Location
+        </span>
+    </div>
+    
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@Model.EventId">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.EventId" class="btn btn-outline-light">
+                <i class="fas fa-edit me-1"></i>Edit
+            </a>
+            <a asp-action="Import" asp-route-eventId="@Model.EventId" class="btn btn-success">
+                <i class="fas fa-file-import me-1"></i>Import CSV
+            </a>
+            <a class="btn btn-primary" asp-controller="Seniors" asp-action="Create" asp-route-eventId="@Model.EventId">
+                <i class="fas fa-plus me-1"></i>Add Senior
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var s in Model.Seniors)
+    {
+        <div class="col">
+            <div class="card h-100 vivuqe-card">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-graduate fa-3x text-primary mb-2"></i>
+                    </div>
+                    <h5 class="card-title">@s.Name</h5>
+                    <p class="card-text mb-3">
+                        <span class="badge vivuqe-badge">
+                            <i class="fas fa-users me-1"></i>Guests: @s.NumberOfGuests
+                        </span>
+                    </p>
+                    <a class="btn btn-primary btn-sm" asp-controller="Seniors" asp-action="Details" asp-route-id="@s.SeniorId">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Seniors.Any())
+{
+    <div class="text-center py-5">
+        <i class="fas fa-user-plus fa-5x text-white-50 mb-3"></i>
+        <h4 class="text-white-50">No Seniors Found</h4>
+        <p class="text-white-50">Start by adding seniors to this event.</p>
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="btn btn-primary" asp-controller="Seniors" asp-action="Create" asp-route-eventId="@Model.EventId">
+                <i class="fas fa-plus me-1"></i>Add Senior
+            </a>
+        }
+    </div>
+}

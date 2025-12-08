@@ -1,0 +1,189 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "SAS Fun Day Invitation";
+}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <title>SAS Fun Day Invitation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        :root {
+            --bg-main: #0b1220;
+            --text-main: #f9fafb;
+            --text-soft: #e5e7eb;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1f2559, #9c4df4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .card {
+            border-radius: 1.8rem;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+            background: radial-gradient(circle at top left, #111827 0, #020617 55%, #020617 100%);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: var(--text-main);
+        }
+
+        p, li, span, strong {
+            color: var(--text-soft);
+        }
+
+        .label {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .btn-instagram {
+            background: #e1306c;
+            border: none;
+        }
+
+        .btn-instagram:hover {
+            background: #c12a60;
+        }
+
+        .btn-call {
+            background: #22c55e;
+            border: none;
+        }
+
+        .btn-call:hover {
+            background: #16a34a;
+        }
+
+        .btn-location {
+            background: #3b82f6;
+            border: none;
+        }
+
+        .btn-location:hover {
+            background: #2563eb;
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            border: none;
+        }
+
+        .btn-whatsapp:hover {
+            background: #1faa55;
+        }
+
+        .logo-img {
+            max-height: 72px;
+            width: auto;
+        }
+
+        @@media (max-width: 576px) {
+            body {
+                align-items: stretch;
+            }
+
+            .card {
+                border-radius: 0;
+                box-shadow: none;
+                max-width: 100%;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container px-3 py-4">
+        <div class="card p-4 p-md-5 text-center text-md-start d-flex flex-column justify-content-between h-100">
+
+            <div>
+                <!-- Logo -->
+                <div class="mb-3 text-center">
+                    <img src="/images/stageup_logo.png" alt="StageUP logo" class="logo-img mb-2" />
+                </div>
+
+                <div class="mb-4 text-center">
+                    <h2 class="fw-bold mb-2">🎉 Invitation to SAS Fun Day</h2>
+                    <p class="mb-0">
+                        We're excited to have you with us for a fun-filled day with the SAS.
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <p class="mb-1">
+                        <span class="label">📅 Date:</span> Wednesday, 10-12-2025
+                    </p>
+                    <p class="mb-1">
+                        <span class="label">⏰ Time:</span> 6 PM
+                    </p>
+                    <p class="mb-0">
+                        <span class="label">📍 Location:</span> New Life (الواسطي)<br />
+                        <span class="text-soft">see the map link below</span>
+                    </p>
+                </div>
+
+                <p class="mb-4">
+                    Follow us for more details, photos and behind-the-scenes moments, and feel free to contact our SEO
+                    lead directly for any questions.
+                </p>
+            </div>
+
+            <div>
+                <div class="d-flex flex-column flex-md-row flex-wrap gap-3 justify-content-center justify-content-md-start mb-4">
+
+                    <!-- Instagram -->
+                    <a href="https://instagram.com/stageup_"
+                       target="_blank"
+                       class="btn btn-instagram text-white fw-semibold px-4">
+                        <i class="fa-brands fa-instagram me-2"></i>
+                        Follow us on Instagram
+                    </a>
+
+                    <!-- Call SEO -->
+                    <a href="tel:+201091411161"
+                       class="btn btn-call text-white fw-semibold px-4">
+                        <i class="fa-solid fa-phone me-2"></i>
+                        Call SEO Lead
+                    </a>
+
+                    <!-- WhatsApp -->
+                    <a href="https://wa.me/+201018445747"
+                       target="_blank"
+                       class="btn btn-whatsapp text-white fw-semibold px-4">
+                        <i class="fa-brands fa-whatsapp me-2"></i>
+                        Chat on WhatsApp
+                    </a>
+
+                    <!-- Location -->
+                    <a href="https://maps.app.goo.gl/vpzRT8L2KeQRkU6u9?g_st=ic"
+                       target="_blank"
+                       class="btn btn-location text-white fw-semibold px-4">
+                        <i class="fa-solid fa-location-dot me-2"></i>
+                        View Location on Maps
+                    </a>
+                </div>
+
+                <hr class="border-secondary mb-3" />
+
+                <p class="mb-0 small text-center" style="color: var(--text-soft);">
+                    We can't wait to see you at SAS Fun Day 💜
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

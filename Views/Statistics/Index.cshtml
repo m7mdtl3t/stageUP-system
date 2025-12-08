@@ -1,0 +1,169 @@
+@model VivuqeQRSystem.Models.StatisticsViewModel
+
+@{
+    ViewData["Title"] = "Statistics Dashboard";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 mb-0">
+            <i class="fas fa-chart-line me-3"></i>Statistics Dashboard
+        </h1>
+        <p class="text-white-50 mt-2">Overview of all events, seniors, and guests</p>
+    </div>
+</div>
+
+<!-- Overall Statistics Cards -->
+<div class="row g-4 mb-5">
+    <!-- Total Events -->
+    <div class="col-md-3 col-sm-6">
+        <div class="stats-card">
+            <div class="stats-icon bg-primary">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stats-content">
+                <h2 class="stats-number">@Model.TotalEvents</h2>
+                <p class="stats-label">Total Events</p>
+                <small class="text-success"><i class="fas fa-check-circle me-1"></i>@Model.ActiveEvents Active</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Seniors -->
+    <div class="col-md-3 col-sm-6">
+        <div class="stats-card">
+            <div class="stats-icon bg-info">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stats-content">
+                <h2 class="stats-number">@Model.TotalSeniors</h2>
+                <p class="stats-label">Total Seniors</p>
+                <small class="text-white-50"><i class="fas fa-users me-1"></i>Registered</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Guests -->
+    <div class="col-md-3 col-sm-6">
+        <div class="stats-card">
+            <div class="stats-icon bg-warning">
+                <i class="fas fa-user-friends"></i>
+            </div>
+            <div class="stats-content">
+                <h2 class="stats-number">@Model.TotalGuests</h2>
+                <p class="stats-label">Total Guests</p>
+                <small class="text-white-50">
+                    <span class="text-success me-2"><i class="fas fa-check me-1"></i>@Model.TotalAttendedGuests</span>
+                    <span class="text-warning"><i class="fas fa-clock me-1"></i>@Model.TotalPendingGuests</span>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Rate -->
+    <div class="col-md-3 col-sm-6">
+        <div class="stats-card">
+            <div class="stats-icon bg-success">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stats-content">
+                <h2 class="stats-number">@Model.OverallAttendanceRate%</h2>
+                <p class="stats-label">Attendance Rate</p>
+                <div class="progress mt-2" style="height: 6px; background: rgba(255,255,255,0.1);">
+                    <div class="progress-bar bg-success" style="width: @Model.OverallAttendanceRate%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Events Table -->
+<div class="vivuqe-card p-4">
+    <h4 class="mb-4">
+        <i class="fas fa-list-alt me-2"></i>Event Statistics
+    </h4>
+
+    @if (Model.EventStats.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-calendar me-1"></i>Event</th>
+                        <th><i class="fas fa-map-marker-alt me-1"></i>Location</th>
+                        <th><i class="fas fa-clock me-1"></i>Date</th>
+                        <th class="text-center"><i class="fas fa-user-graduate me-1"></i>Seniors</th>
+                        <th class="text-center"><i class="fas fa-users me-1"></i>Guests</th>
+                        <th class="text-center"><i class="fas fa-check-circle me-1"></i>Attended</th>
+                        <th class="text-center"><i class="fas fa-hourglass-half me-1"></i>Pending</th>
+                        <th class="text-center"><i class="fas fa-chart-pie me-1"></i>Rate</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var evt in Model.EventStats)
+                    {
+                        <tr>
+                            <td>
+                                <span class="fw-bold">@evt.EventName</span>
+                                @if (evt.IsActive)
+                                {
+                                    <span class="badge bg-success ms-2">Active</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="text-white-50">@(evt.Location ?? "-")</span>
+                            </td>
+                            <td>
+                                @if (evt.EventDate.HasValue)
+                                {
+                                    <span>@evt.EventDate.Value.ToString("MMM dd, yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-white-50">-</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info">@evt.SeniorsCount</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-warning text-dark">@evt.GuestsCount</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success">@evt.AttendedGuests</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-secondary">@evt.PendingGuests</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 8px; width: 60px; background: rgba(255,255,255,0.1);">
+                                        <div class="progress-bar @(evt.AttendanceRate >= 75 ? "bg-success" : evt.AttendanceRate >= 50 ? "bg-warning" : "bg-danger")" 
+                                             style="width: @evt.AttendanceRate%"></div>
+                                    </div>
+                                    <span class="fw-bold" style="min-width: 45px;">@evt.AttendanceRate%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="/Events/Details/@evt.EventId" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-chart-bar fa-3x text-white-50 mb-3"></i>
+            <p class="text-white-50">No events found. Create your first event to see statistics.</p>
+            <a href="/Events/Create" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create Event
+            </a>
+        </div>
+    }
+</div>

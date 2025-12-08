@@ -1,0 +1,55 @@
+@model VivuqeQRSystem.Models.Senior
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card vivuqe-card">
+            <div class="card-header text-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>Edit Senior
+                </h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="SeniorId" />
+                    
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">
+                            <i class="fas fa-user me-1"></i>Senior Name
+                        </label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter senior name" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label">
+                            <i class="fas fa-phone me-1"></i>Phone Number
+                        </label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Enter phone number (optional)" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label asp-for="NumberOfGuests" class="form-label">
+                            <i class="fas fa-users me-1"></i>Number of Guests
+                        </label>
+                        <input asp-for="NumberOfGuests" class="form-control" type="number" min="0" max="1000" placeholder="Enter number of allowed guests" />
+                        <span asp-validation-for="NumberOfGuests" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a class="btn btn-outline-secondary me-md-2" href="@Url.Action("Details", new { id = Model.SeniorId })">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Senior
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
