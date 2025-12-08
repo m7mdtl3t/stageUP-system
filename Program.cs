@@ -32,7 +32,9 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    
+    // Ensure database and tables are created (for production)
+    db.Database.EnsureCreated();
 
     var seedEnabled = app.Configuration.GetValue<bool?>("SeedOnStartup") ?? false;
     var isDev = app.Environment.IsDevelopment();

@@ -7,5 +7,4 @@ obj/
 *.db
 *.db-shm
 *.db-wal
-Migrations/
 appsettings.Development.json
