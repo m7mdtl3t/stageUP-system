@@ -37,7 +37,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? "Data Source=vivuqe.db";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlite("Data Source=vivuqe.db"));
+
 
 var app = builder.Build();
 

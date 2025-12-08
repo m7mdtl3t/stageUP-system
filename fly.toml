@@ -13,9 +13,9 @@ primary_region = "fra"
   auto_start_machines = true
   min_machines_running = 0
 
-[mounts]
-  source = "stageup_data"
-  destination = "/data"
+#[mounts]
+ # source = "stageup_data"
+  #destination = "/data"
 
 [[vm]]
   cpu_kind = "shared"
