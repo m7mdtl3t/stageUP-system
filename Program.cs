@@ -1,6 +1,7 @@
 using VivuqeQRSystem.Data;
 using VivuqeQRSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,19 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.C
     {
         options.LoginPath = "/Account/Login";
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Lax;
     });
+
+// Add Data Protection for persistent keys
+var keysPath = builder.Environment.IsDevelopment() 
+    ? Path.Combine(Directory.GetCurrentDirectory(), "keys") 
+    : "/data/keys";
+Directory.CreateDirectory(keysPath);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
 
 // Configure Kestrel - use environment variable in production, fallback to 5002 for development
 if (builder.Environment.IsDevelopment())
