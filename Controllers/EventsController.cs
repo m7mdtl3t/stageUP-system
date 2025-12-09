@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using ExcelDataReader;
 
+using VivuqeQRSystem.Services;
+
 namespace VivuqeQRSystem.Controllers
 {
     [Authorize]
@@ -20,11 +22,13 @@ namespace VivuqeQRSystem.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly IAuditService _auditService;
 
-        public EventsController(ApplicationDbContext context, IWebHostEnvironment environment)
+        public EventsController(ApplicationDbContext context, IWebHostEnvironment environment, IAuditService auditService)
         {
             _context = context;
             _environment = environment;
+            _auditService = auditService;
         }
 
         // GET: Events (Dashboard)
@@ -72,6 +76,7 @@ namespace VivuqeQRSystem.Controllers
             {
                 _context.Add(@event);
                 await _context.SaveChangesAsync();
+                await _auditService.LogAsync("Create", "Event", @event.EventId.ToString(), $"Created event '{@event.Name}'");
                 return RedirectToAction(nameof(Index));
             }
             return View(@event);
@@ -102,6 +107,7 @@ namespace VivuqeQRSystem.Controllers
                 {
                     _context.Update(@event);
                     await _context.SaveChangesAsync();
+                    await _auditService.LogAsync("Update", "Event", @event.EventId.ToString(), $"Updated event '{@event.Name}'");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,6 +130,7 @@ namespace VivuqeQRSystem.Controllers
             {
                 _context.Events.Remove(@event);
                 await _context.SaveChangesAsync();
+                await _auditService.LogAsync("Delete", "Event", id.ToString(), $"Deleted event '{@event.Name}'");
             }
             return RedirectToAction(nameof(Index));
         }
@@ -147,6 +154,7 @@ namespace VivuqeQRSystem.Controllers
                 };
                 _context.Events.Add(legacyEvent);
                 await _context.SaveChangesAsync();
+                await _auditService.LogAsync("Create", "Event", legacyEvent.EventId.ToString(), "Auto-created Legacy Data event");
             }
 
             // Move duplicate seniors
@@ -285,6 +293,8 @@ namespace VivuqeQRSystem.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+
+                await _auditService.LogAsync("Import", "Seniors/Guests", eventId.ToString(), $"Imported {seniorsCount} seniors and {guestsCount} guests into Event ID {eventId}");
                 
                 TempData["ImportMessage"] = $"Imported {seniorsCount} seniors and {guestsCount} guests successfully.";
                 if (errors.Any())

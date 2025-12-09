@@ -52,6 +52,15 @@
                 <a class="nav-link text-light me-3" href="/Events/Index">
                     <i class="fas fa-calendar-alt me-1"></i>Events
                 </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="nav-link text-light me-3" href="/AuditLogs">
+                        <i class="fas fa-shield-alt me-1"></i>Audit
+                    </a>
+                    <a class="nav-link text-light me-3" href="/Users">
+                        <i class="fas fa-users-cog me-1"></i>Users
+                    </a>
+                }
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     <span class="navbar-text me-3 text-light">

@@ -7,15 +7,19 @@ using VivuqeQRSystem.Data;
 using VivuqeQRSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
+using VivuqeQRSystem.Services;
+
 namespace VivuqeQRSystem.Controllers
 {
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAuditService _auditService;
 
-        public AccountController(ApplicationDbContext context)
+        public AccountController(ApplicationDbContext context, IAuditService auditService)
         {
             _context = context;
+            _auditService = auditService;
         }
 
         [HttpGet]
@@ -62,6 +66,8 @@ namespace VivuqeQRSystem.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
+            await _auditService.LogAsync("Login", "User", user.Id.ToString(), $"User '{user.Username}' logged in successfully");
+
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -73,7 +79,9 @@ namespace VivuqeQRSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
+            var username = User.Identity?.Name ?? "Unknown";
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _auditService.LogAsync("Logout", "User", username, $"User '{username}' logged out");
             return RedirectToAction("Login");
         }
     }

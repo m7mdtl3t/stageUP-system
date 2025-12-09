@@ -88,7 +88,7 @@
         }
 
         .logo-img {
-            max-height: 72px;
+            max-height: 120px;
             width: auto;
         }
 
@@ -104,17 +104,84 @@
                 height: 100vh;
             }
         }
+    <style>
+        /* ... existing styles ... */
+        
+        /* New Styles for Lock */
+        .blur-content {
+            filter: blur(15px);
+            pointer-events: none;
+            user-select: none;
+            transition: 0.5s ease;
+        }
+
+        .lock-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex; /* Hidden by default via JS if unlocked */
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            background: rgba(11, 18, 32, 0.85); /* Semi-transparent dark background */
+        }
+
+        .lock-card {
+            background: #1f2937;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
-    <div class="container px-3 py-4">
-        <div class="card p-4 p-md-5 text-center text-md-start d-flex flex-column justify-content-between h-100">
+    <!-- Lock Overlay -->
+    <div id="socialLock" class="lock-overlay">
+        <div class="lock-card">
+            <div class="mb-3">
+                <i class="fa-brands fa-instagram fa-4x text-white mb-3" style="color: #e1306c !important;"></i>
+            </div>
+            <h3 class="fw-bold text-white mb-2">Exclusive Invitation</h3>
+            <p class="text-white-50 mb-4">
+                ⚠️ follow our Instagram page to verify your identity and unlock your invitation.
+            </p>
+            <a href="https://instagram.com/stageup_" 
+               target="_blank" 
+               onclick="unlockContent()"
+               class="btn btn-instagram btn-lg text-white w-100 fw-bold">
+                <i class="fa-brands fa-instagram me-2"></i> Follow to Unlock
+            </a>
+        </div>
+    </div>
 
+    <!-- Main Content -->
+    <div id="mainContent" class="container px-3 py-4 blur-content">
+        <div class="card p-4 p-md-5 text-center text-md-start d-flex flex-column justify-content-between h-100">
             <div>
                 <!-- Logo -->
                 <div class="mb-3 text-center">
                     <img src="/images/stageup_logo.png" alt="StageUP logo" class="logo-img mb-2" />
                 </div>
+                <!-- ... rest of content ... -->
+            </div>
+            
+            <!-- ... buttons ... -->
+            <!-- Same content as before, just ensuring wrapper is closed -->
+            <!-- ... buttons ... -->
+            <!-- Same content as before, just ensuring wrapper is closed -->
+             <div>
 
                 <div class="mb-4 text-center">
                     <h2 class="fw-bold mb-2">🎉 Invitation to SAS Fun Day</h2>
@@ -137,8 +204,8 @@
                 </div>
 
                 <p class="mb-4">
-                    Follow us for more details, photos and behind-the-scenes moments, and feel free to contact our SEO
-                    lead directly for any questions.
+                    Follow us for more details, photos and behind-the-scenes moments, and feel free to contact us
+                    for any questions.
                 </p>
             </div>
 
@@ -186,5 +253,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Script to handle Lock -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if already unlocked
+            const isUnlocked = localStorage.getItem('stageup_social_unlocked');
+            
+            if (isUnlocked === 'true') {
+                // If unlocked, remove lock immediately (or prevent it from showing)
+                document.getElementById('socialLock').style.display = 'none';
+                document.getElementById('mainContent').classList.remove('blur-content');
+            }
+        });
+
+        function unlockContent() {
+            // Wait a moment then unlock (simulating user going to app and coming back)
+            setTimeout(() => {
+                document.getElementById('socialLock').style.opacity = '0';
+                document.getElementById('mainContent').classList.remove('blur-content');
+                
+                // Save state
+                localStorage.setItem('stageup_social_unlocked', 'true');
+                
+                // Remove overlay from DOM after animation
+                setTimeout(() => {
+                    document.getElementById('socialLock').style.display = 'none';
+                }, 500);
+            }, 1000); // 1 second delay creates a better "action-reaction" feel
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,121 @@
+@model VivuqeQRSystem.Models.PaginatedList<VivuqeQRSystem.Models.AuditLog>
+
+@{
+    ViewData["Title"] = "System Audit Logs";
+}
+
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card vivuqe-card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>System Audit Logs
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3 align-items-center mb-0">
+                    <div class="col-md-3">
+                        <input type="text" name="search" class="form-control" placeholder="Search User, Details, ID..." value="@ViewBag.Search">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="actionType" class="form-select">
+                            <option value="">All Actions</option>
+                            <option value="Create" selected="@(ViewBag.ActionType == "Create")">Create</option>
+                            <option value="Update" selected="@(ViewBag.ActionType == "Update")">Update</option>
+                            <option value="Delete" selected="@(ViewBag.ActionType == "Delete")">Delete</option>
+                            <option value="Login" selected="@(ViewBag.ActionType == "Login")">Login</option>
+                            <option value="Logout" selected="@(ViewBag.ActionType == "Logout")">Logout</option>
+                            <option value="Import" selected="@(ViewBag.ActionType == "Import")">Import</option>
+                            <option value="Attendance" selected="@(ViewBag.ActionType == "Attendance")">Attendance</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="entity" class="form-select">
+                            <option value="">All Entities</option>
+                            <option value="Senior" selected="@(ViewBag.Entity == "Senior")">Senior</option>
+                            <option value="Guest" selected="@(ViewBag.Entity == "Guest")">Guest</option>
+                            <option value="Event" selected="@(ViewBag.Entity == "Event")">Event</option>
+                            <option value="User" selected="@(ViewBag.Entity == "User")">User</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card vivuqe-card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-dark mb-0 align-middle">
+                        <thead class="bg-secondary">
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Entity</th>
+                                <th>ID</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="small text-white-50">@item.Timestamp.ToLocalTime().ToString("g")</td>
+                                    <td class="fw-bold text-info">@item.Username</td>
+                                    <td>
+                                        @{
+                                            var badgeClass = item.Action switch {
+                                                "Create" => "success",
+                                                "Update" => "warning",
+                                                "Delete" => "danger",
+                                                "Login" => "primary",
+                                                "Import" => "info",
+                                                _ => "secondary"
+                                            };
+                                        }
+                                        <span class="badge bg-@badgeClass">@item.Action</span>
+                                    </td>
+                                    <td>@item.EntityName</td>
+                                    <td class="small text-muted font-monospace">@item.EntityId</td>
+                                    <td class="small text-break">@item.Details</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-secondary text-center">
+                @{
+                    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                }
+                <a asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex - 1)"
+                   asp-route-search="@ViewBag.Search"
+                   asp-route-actionType="@ViewBag.ActionType"
+                   asp-route-entity="@ViewBag.Entity"
+                   class="btn btn-sm btn-dark @prevDisabled">
+                    <i class="fas fa-chevron-left me-1"></i> Previous
+                </a>
+                <span class="mx-2 text-white small">Page @Model.PageIndex of @Model.TotalPages</span>
+                <a asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex + 1)"
+                   asp-route-search="@ViewBag.Search"
+                   asp-route-actionType="@ViewBag.ActionType"
+                   asp-route-entity="@ViewBag.Entity"
+                   class="btn btn-sm btn-dark @nextDisabled">
+                    Next <i class="fas fa-chevron-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

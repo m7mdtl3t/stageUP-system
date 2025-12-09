@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<VivuqeQRSystem.Services.IAuditService, VivuqeQRSystem.Services.AuditService>();
     
 builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -33,11 +35,22 @@ if (builder.Environment.IsDevelopment())
     builder.WebHost.UseUrls("http://0.0.0.0:5002");
 }
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Data Source=vivuqe.db";
+// Configure DB Connection
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (builder.Environment.IsProduction())
+{
+    // Use the persistent volume path in production
+    connectionString = "Data Source=/data/vivuqe.db";
+}
+else if (string.IsNullOrEmpty(connectionString))
+{
+    // Fallback for dev
+    connectionString = "Data Source=vivuqe.db";
+}
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite("Data Source=vivuqe.db"));
+    options.UseSqlite(connectionString));
 
 
 var app = builder.Build();

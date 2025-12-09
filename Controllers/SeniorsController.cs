@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using QRCoder;
 using Microsoft.AspNetCore.Authorization;
 
+using VivuqeQRSystem.Services;
+
 namespace VivuqeQRSystem.Controllers
 {
     [Authorize]
@@ -13,11 +15,13 @@ namespace VivuqeQRSystem.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IAuditService _auditService;
 
-        public SeniorsController(ApplicationDbContext context, IConfiguration configuration)
+        public SeniorsController(ApplicationDbContext context, IConfiguration configuration, IAuditService auditService)
         {
             _context = context;
             _configuration = configuration;
+            _auditService = auditService;
         }
 
         public async Task<IActionResult> Index(int? eventId, int pageNumber = 1)
@@ -56,6 +60,7 @@ namespace VivuqeQRSystem.Controllers
             if (!ModelState.IsValid) return View(senior);
             _context.Seniors.Add(senior);
             await _context.SaveChangesAsync();
+            await _auditService.LogAsync("Create", "Senior", senior.SeniorId.ToString(), $"Created senior '{senior.Name}'");
             return RedirectToAction(nameof(Details), new { id = senior.SeniorId });
         }
 
@@ -76,6 +81,7 @@ namespace VivuqeQRSystem.Controllers
             if (!ModelState.IsValid) return View(senior);
             _context.Update(senior);
             await _context.SaveChangesAsync();
+            await _auditService.LogAsync("Update", "Senior", senior.SeniorId.ToString(), $"Updated senior '{senior.Name}'");
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -89,6 +95,7 @@ namespace VivuqeQRSystem.Controllers
             {
                 _context.Seniors.Remove(senior);
                 await _context.SaveChangesAsync();
+                await _auditService.LogAsync("Delete", "Senior", id.ToString(), $"Deleted senior '{senior.Name}'");
             }
             return RedirectToAction(nameof(Index));
         }
@@ -139,6 +146,7 @@ namespace VivuqeQRSystem.Controllers
             guest.IsAttended = true;
             guest.AttendanceTime = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+            await _auditService.LogAsync("Attendance", "Guest", guest.GuestId.ToString(), $"Marked attendance for guest '{guest.Name}' (Senior ID: {guest.SeniorId})");
 
             var seniorId = guest.SeniorId;
             return RedirectToAction(nameof(Details), new { id = seniorId });
@@ -154,6 +162,7 @@ namespace VivuqeQRSystem.Controllers
             guest.IsAttended = false;
             guest.AttendanceTime = null;
             await _context.SaveChangesAsync();
+            await _auditService.LogAsync("Attendance", "Guest", guest.GuestId.ToString(), $"Unmarked attendance for guest '{guest.Name}' (Senior ID: {guest.SeniorId})");
 
             var seniorId = guest.SeniorId;
             return RedirectToAction(nameof(Details), new { id = seniorId });
@@ -184,6 +193,7 @@ namespace VivuqeQRSystem.Controllers
 
             _context.Guests.Add(new Guest { Name = name.Trim(), PhoneNumber = phoneNumber, SeniorId = seniorId });
             await _context.SaveChangesAsync();
+            await _auditService.LogAsync("Create", "Guest", "New", $"Added guest '{name}' to Senior ID {seniorId}");
             return RedirectToAction(nameof(Details), new { id = seniorId });
         }
 
@@ -195,8 +205,10 @@ namespace VivuqeQRSystem.Controllers
             var guest = await _context.Guests.FindAsync(id);
             if (guest == null) return NotFound();
             var seniorId = guest.SeniorId;
+            var guestName = guest.Name;
             _context.Guests.Remove(guest);
             await _context.SaveChangesAsync();
+            await _auditService.LogAsync("Delete", "Guest", id.ToString(), $"Deleted guest '{guestName}' from Senior ID {seniorId}");
             return RedirectToAction(nameof(Details), new { id = seniorId });
         }
 

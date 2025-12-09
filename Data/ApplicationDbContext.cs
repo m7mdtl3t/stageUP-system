@@ -14,6 +14,7 @@ namespace VivuqeQRSystem.Data
         public DbSet<Guest> Guests { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
