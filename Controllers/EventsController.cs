@@ -11,6 +11,7 @@ using System.Text;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
+using ExcelDataReader;
 
 namespace VivuqeQRSystem.Controllers
 {
@@ -177,7 +178,8 @@ namespace VivuqeQRSystem.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult DownloadTemplate()
         {
-            var csv = "Name,PhoneNumber,NumberOfGuests\nJohn Doe,01012345678,2\nJane Smith,01123456789,3";
+            // Simple CSV template still available
+            var csv = "Name,PhoneNumber\nJohn Doe,01012345678";
             var bytes = Encoding.UTF8.GetBytes(csv);
             return File(bytes, "text/csv", "Seniors_Template.csv");
         }
@@ -189,67 +191,121 @@ namespace VivuqeQRSystem.Controllers
         {
             if (file == null || file.Length == 0)
             {
-                ModelState.AddModelError("", "Please upload a valid CSV file.");
+                ModelState.AddModelError("", "Please upload a valid file.");
                 return Import(eventId);
             }
 
             var evt = await _context.Events.FindAsync(eventId);
             if (evt == null) return NotFound();
 
-            int successCount = 0;
-            int errorCount = 0;
+            int seniorsCount = 0;
+            int guestsCount = 0;
+            var errors = new List<string>();
+
+            // Ensure we can read modern Excel formats
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             try
             {
-                using var stream = new StreamReader(file.OpenReadStream());
-                var headerLine = await stream.ReadLineAsync(); // Skip header
+                using var stream = file.OpenReadStream();
+                using var reader = ExcelDataReader.ExcelReaderFactory.CreateReader(stream);
+                var result = reader.AsDataSet();
 
-                while (!stream.EndOfStream)
+                if (result.Tables.Count < 2)
                 {
-                    var line = await stream.ReadLineAsync();
-                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    ModelState.AddModelError("", "Excel file must have at least 2 sheets (Seniors, Guests).");
+                    return Import(eventId);
+                }
 
-                    var values = line.Split(',');
-                    if (values.Length >= 1)
+                var seniorsTable = result.Tables[0];
+                var guestsTable = result.Tables[1];
+
+                // Dictionary to map Excel Senior_ID to Created Senior Entity
+                var seniorMap = new Dictionary<string, Senior>();
+
+                // 1. Process Seniors (Sheet 1)
+                // Expected columns: Senior_ID (0), Senior_Name (1), Senior_Phone (2)
+                for (int i = 1; i < seniorsTable.Rows.Count; i++) // Start at 1 to skip header
+                {
+                    var row = seniorsTable.Rows[i];
+                    var excelId = row[0]?.ToString()?.Trim();
+                    var name = row[1]?.ToString()?.Trim();
+                    var phone = row[2]?.ToString()?.Trim(); // User said 3rd column is phone
+
+                    if (string.IsNullOrEmpty(excelId) || string.IsNullOrEmpty(name)) continue;
+
+                    var senior = new Senior
                     {
-                        var name = values[0].Trim();
-                        var phone = values.Length > 1 ? values[1].Trim() : null;
-                        var guestsStr = values.Length > 2 ? values[2].Trim() : "0";
-                        int guests = 0;
-                        int.TryParse(guestsStr, out guests);
+                        Name = name,
+                        PhoneNumber = formatPhone(phone),
+                        EventId = eventId,
+                        NumberOfGuests = 0 // Will count later
+                    };
 
-                        if (!string.IsNullOrEmpty(name))
+                    _context.Seniors.Add(senior);
+                    await _context.SaveChangesAsync(); // Save to get the DB ID
+
+                    if (!seniorMap.ContainsKey(excelId))
+                    {
+                        seniorMap.Add(excelId, senior);
+                        seniorsCount++;
+                    }
+                }
+
+                // 2. Process Guests (Sheet 2)
+                // Expected columns: Guest_ID (0), Guest_Name (1), Guest_Phone (2), Senior_ID (3)
+                for (int i = 1; i < guestsTable.Rows.Count; i++) // Start at 1 to skip header
+                {
+                    var row = guestsTable.Rows[i];
+                    var guestName = row[1]?.ToString()?.Trim();
+                    var guestPhone = row[2]?.ToString()?.Trim();
+                    var seniorRefId = row[3]?.ToString()?.Trim();
+
+                    if (string.IsNullOrEmpty(guestName) || string.IsNullOrEmpty(seniorRefId)) continue;
+
+                    if (seniorMap.TryGetValue(seniorRefId, out var parentSenior))
+                    {
+                        var guest = new Guest
                         {
-                            var senior = new Senior
-                            {
-                                Name = name,
-                                PhoneNumber = phone,
-                                NumberOfGuests = guests,
-                                EventId = eventId
-                            };
-                            _context.Seniors.Add(senior);
-                            successCount++;
-                        }
-                        else
-                        {
-                            errorCount++;
-                        }
+                            Name = guestName,
+                            PhoneNumber = formatPhone(guestPhone),
+                            SeniorId = parentSenior.SeniorId,
+                            IsAttended = false
+                        };
+                        _context.Guests.Add(guest);
+                        
+                        // Increment senior's guest count
+                        parentSenior.NumberOfGuests++;
+                        guestsCount++;
                     }
                     else
                     {
-                        errorCount++;
+                        errors.Add($"Guest {guestName} linked to unknown Senior ID {seniorRefId}");
                     }
                 }
+
                 await _context.SaveChangesAsync();
-                TempData["ImportMessage"] = $"Imported {successCount} seniors successfully. {errorCount} errors.";
+                
+                TempData["ImportMessage"] = $"Imported {seniorsCount} seniors and {guestsCount} guests successfully.";
+                if (errors.Any())
+                {
+                    TempData["ImportErrors"] = string.Join("; ", errors.Take(10));
+                }
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"Error parsing file: {ex.Message}");
+                ModelState.AddModelError("", $"Error processing file: {ex.Message}");
                 return Import(eventId);
             }
 
             return RedirectToAction("Details", new { id = eventId });
+        }
+
+        private string? formatPhone(string? phone)
+        {
+            if (string.IsNullOrEmpty(phone)) return null;
+            // Basic cleanup if needed, but keeping original formatting is safer for now
+            return phone;
         }
     }
 }
