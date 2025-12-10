@@ -18,6 +18,11 @@
                 <i class="fas fa-qrcode me-1"></i><span class="d-none d-sm-inline">StageUP</span>
             </a>
             
+            <!-- Mobile Search Button (visible only on mobile) -->
+            <button class="btn btn-outline-light btn-sm d-lg-none" type="button" data-bs-toggle="modal" data-bs-target="#mobileSearchModal" title="Search">
+                <i class="fas fa-search"></i>
+            </button>
+            
             <!-- Search Boxes (Hidden on mobile) -->
             <div class="d-none d-lg-flex align-items-center gap-3">
                 <!-- Senior Search Box -->
@@ -76,6 +81,45 @@
             </div>
         </div>
     </nav>
+    
+    <!-- Mobile Search Modal -->
+    <div class="modal fade" id="mobileSearchModal" tabindex="-1" aria-labelledby="mobileSearchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-primary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="mobileSearchModalLabel">
+                        <i class="fas fa-search me-2"></i>Search
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Mobile Senior Search -->
+                    <div class="mb-4">
+                        <label class="form-label text-primary fw-bold">
+                            <i class="fas fa-user-graduate me-1"></i>Search Seniors
+                        </label>
+                        <div class="position-relative">
+                            <input type="text" id="mobileSeniorSearch" class="form-control bg-secondary text-white border-0" 
+                                   placeholder="Name or phone..." autocomplete="off" />
+                            <div id="mobileSeniorResults" class="search-dropdown-box"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Guest Search -->
+                    <div>
+                        <label class="form-label text-info fw-bold">
+                            <i class="fas fa-user-friends me-1"></i>Search Guests
+                        </label>
+                        <div class="position-relative">
+                            <input type="text" id="mobileGuestSearch" class="form-control bg-secondary text-white border-0" 
+                                   placeholder="Name or phone..." autocomplete="off" />
+                            <div id="mobileGuestResults" class="search-dropdown-box"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Floating Back Button -->
     <a href="javascript:history.back()" class="floating-back-btn" title="Go Back">
@@ -178,7 +222,7 @@
         
         // Hide dropdowns when clicking outside
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('.search-container')) {
+            if (!e.target.closest('.search-container') && !e.target.closest('.modal-body')) {
                 document.querySelectorAll('.search-dropdown-box').forEach(d => d.classList.remove('show'));
             }
         });
@@ -189,6 +233,72 @@
                 const dropdown = this.nextElementSibling;
                 if (dropdown.innerHTML) dropdown.classList.add('show');
             });
+        });
+        
+        // Mobile Senior Search
+        document.getElementById('mobileSeniorSearch')?.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query.length < 2) {
+                document.getElementById('mobileSeniorResults').classList.remove('show');
+                return;
+            }
+            
+            fetch('/Search/SearchSeniors?q=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    const dropdown = document.getElementById('mobileSeniorResults');
+                    if (data.results.length === 0) {
+                        dropdown.innerHTML = '<div class="search-result-item no-result"><i class="fas fa-search me-2"></i>No seniors found</div>';
+                    } else {
+                        dropdown.innerHTML = data.results.map(s => `
+                            <a href="/Seniors/Details/${s.seniorId}" class="search-result-item" onclick="bootstrap.Modal.getInstance(document.getElementById('mobileSearchModal')).hide()">
+                                <div class="result-main">
+                                    <span class="senior-name-color">${s.name}</span>
+                                    <span class="phone-color">${s.phoneNumber || ''}</span>
+                                </div>
+                                <div class="result-sub">
+                                    <i class="fas fa-users me-1"></i>${s.guestsCount} guests
+                                    ${s.eventName ? ' • <i class="fas fa-calendar me-1"></i>' + s.eventName : ''}
+                                </div>
+                            </a>
+                        `).join('');
+                    }
+                    dropdown.classList.add('show');
+                });
+        });
+        
+        // Mobile Guest Search
+        document.getElementById('mobileGuestSearch')?.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query.length < 2) {
+                document.getElementById('mobileGuestResults').classList.remove('show');
+                return;
+            }
+            
+            fetch('/Search/SearchGuests?q=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    const dropdown = document.getElementById('mobileGuestResults');
+                    if (data.results.length === 0) {
+                        dropdown.innerHTML = '<div class="search-result-item no-result"><i class="fas fa-search me-2"></i>No guests found</div>';
+                    } else {
+                        dropdown.innerHTML = data.results.map(g => `
+                            <a href="/Seniors/Details/${g.seniorId}?highlightGuest=${g.guestId}" class="search-result-item" onclick="bootstrap.Modal.getInstance(document.getElementById('mobileSearchModal')).hide()">
+                                <div class="result-main">
+                                    <span class="guest-name-color">${g.name}</span>
+                                    <span class="phone-color">${g.phoneNumber || ''}</span>
+                                    ${g.isAttended ? '<span class="badge bg-success ms-2"><i class="fas fa-check"></i></span>' : '<span class="badge bg-warning text-dark ms-2"><i class="fas fa-clock"></i></span>'}
+                                </div>
+                                <div class="result-sub">
+                                    <i class="fas fa-link me-1"></i>
+                                    <span class="senior-name-color">${g.seniorName}</span>
+                                    ${g.eventName ? ' • <i class="fas fa-calendar me-1"></i>' + g.eventName : ''}
+                                </div>
+                            </a>
+                        `).join('');
+                    }
+                    dropdown.classList.add('show');
+                });
         });
     </script>
     @RenderSection("Scripts", required: false)
