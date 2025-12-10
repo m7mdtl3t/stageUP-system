@@ -146,7 +146,7 @@ namespace VivuqeQRSystem.Controllers
             guest.IsAttended = true;
             guest.AttendanceTime = DateTime.UtcNow;
             await _context.SaveChangesAsync();
-            await _auditService.LogAsync("Attendance", "Guest", guest.GuestId.ToString(), $"Marked attendance for guest '{guest.Name}' (Senior ID: {guest.SeniorId})");
+            await _auditService.LogAsync("Mark", "Guest", guest.GuestId.ToString(), $"Marked attendance for guest '{guest.Name}' (Senior ID: {guest.SeniorId})");
 
             var seniorId = guest.SeniorId;
             return RedirectToAction(nameof(Details), new { id = seniorId });
@@ -162,7 +162,7 @@ namespace VivuqeQRSystem.Controllers
             guest.IsAttended = false;
             guest.AttendanceTime = null;
             await _context.SaveChangesAsync();
-            await _auditService.LogAsync("Attendance", "Guest", guest.GuestId.ToString(), $"Unmarked attendance for guest '{guest.Name}' (Senior ID: {guest.SeniorId})");
+            await _auditService.LogAsync("Unmark", "Guest", guest.GuestId.ToString(), $"Unmarked attendance for guest '{guest.Name}' (Senior ID: {guest.SeniorId})");
 
             var seniorId = guest.SeniorId;
             return RedirectToAction(nameof(Details), new { id = seniorId });

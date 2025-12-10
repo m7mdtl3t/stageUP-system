@@ -22,7 +22,62 @@ namespace VivuqeQRSystem.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Users.ToListAsync());
+            var users = await _context.Users.ToListAsync();
+            
+            // Get activity stats for each user from AuditLogs
+            var markStats = await _context.AuditLogs
+                .Where(a => a.Action == "Mark" || a.Action == "Attendance") // Include old records
+                .GroupBy(a => a.Username)
+                .Select(g => new { Username = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Username, x => x.Count);
+            
+            var unmarkStats = await _context.AuditLogs
+                .Where(a => a.Action == "Unmark")
+                .GroupBy(a => a.Username)
+                .Select(g => new { Username = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Username, x => x.Count);
+            
+            var loginStats = await _context.AuditLogs
+                .Where(a => a.Action == "Login")
+                .GroupBy(a => a.Username)
+                .Select(g => new { Username = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Username, x => x.Count);
+            
+            var totalActions = await _context.AuditLogs
+                .GroupBy(a => a.Username)
+                .Select(g => new { Username = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Username, x => x.Count);
+            
+            ViewBag.MarkStats = markStats;
+            ViewBag.UnmarkStats = unmarkStats;
+            ViewBag.LoginStats = loginStats;
+            ViewBag.TotalActions = totalActions;
+            
+            return View(users);
+        }
+
+        // GET: Users/Activity/username
+        public async Task<IActionResult> Activity(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+                return NotFound();
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+                return NotFound();
+
+            // Get all attendance-related actions for this user
+            var attendanceLogs = await _context.AuditLogs
+                .Where(a => a.Username == username && (a.Action == "Mark" || a.Action == "Unmark" || a.Action == "Attendance"))
+                .OrderByDescending(a => a.Timestamp)
+                .Take(100)
+                .ToListAsync();
+
+            ViewBag.User = user;
+            ViewBag.MarkCount = attendanceLogs.Count(a => a.Action == "Mark" || a.Action == "Attendance");
+            ViewBag.UnmarkCount = attendanceLogs.Count(a => a.Action == "Unmark");
+            
+            return View(attendanceLogs);
         }
 
         // GET: Users/Create

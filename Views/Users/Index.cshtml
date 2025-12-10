@@ -2,12 +2,16 @@
 
 @{
     ViewData["Title"] = "User Management";
+    var markStats = ViewBag.MarkStats as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var unmarkStats = ViewBag.UnmarkStats as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var loginStats = ViewBag.LoginStats as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var totalActions = ViewBag.TotalActions as Dictionary<string, int> ?? new Dictionary<string, int>();
 }
 
 <div class="row justify-content-center">
-    <div class="col-md-10">
+    <div class="col-12">
         <div class="card vivuqe-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h3 class="mb-0">
                     <i class="fas fa-users-cog me-2"></i>User Management
                 </h3>
@@ -27,36 +31,53 @@
                     <table class="table table-hover table-dark mb-0 align-middle">
                         <thead class="bg-secondary">
                             <tr>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th class="text-end">Actions</th>
+                                <th><i class="fas fa-user"></i><span class="d-none d-sm-inline ms-1">Username</span></th>
+                                <th><i class="fas fa-shield-alt"></i><span class="d-none d-sm-inline ms-1">Role</span></th>
+                                <th class="text-center"><i class="fas fa-check text-success"></i><span class="d-none d-md-inline ms-1">Mark</span></th>
+                                <th class="text-center"><i class="fas fa-undo text-warning"></i><span class="d-none d-md-inline ms-1">Unmark</span></th>
+                                <th class="text-center d-none d-lg-table-cell"><i class="fas fa-sign-in-alt text-info"></i><span class="ms-1">Logins</span></th>
+                                <th class="text-end"><i class="fas fa-cogs"></i></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
+                                var marked = markStats.ContainsKey(item.Username) ? markStats[item.Username] : 0;
+                                var unmarked = unmarkStats.ContainsKey(item.Username) ? unmarkStats[item.Username] : 0;
+                                var logins = loginStats.ContainsKey(item.Username) ? loginStats[item.Username] : 0;
+                                
                                 <tr>
                                     <td>
-                                        <div class="fw-bold">@item.Username</div>
+                                        <a asp-action="Activity" asp-route-username="@item.Username" class="text-decoration-none text-white fw-bold">
+                                            @item.Username
+                                            <i class="fas fa-external-link-alt ms-1 small text-primary"></i>
+                                        </a>
                                     </td>
                                     <td>
                                         <span class="badge bg-@(item.Role == "Admin" ? "danger" : "info")">
                                             @item.Role
                                         </span>
                                     </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success fs-6">@marked</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-warning text-dark fs-6">@unmarked</span>
+                                    </td>
+                                    <td class="text-center d-none d-lg-table-cell">
+                                        <span class="badge bg-info fs-6">@logins</span>
+                                    </td>
                                     <td class="text-end">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning me-2">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         
-                                        <!-- Delete Button Trigger Modal -->
-                                        @if (User.Identity.Name != item.Username)
+                                        @if (User.Identity?.Name != item.Username)
                                         {
-                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@item.Id">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@item.Id" title="Delete">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
 
-                                            <!-- Delete Modal -->
                                             <div class="modal fade" id="deleteModal-@item.Id" tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content bg-dark text-white border-secondary">

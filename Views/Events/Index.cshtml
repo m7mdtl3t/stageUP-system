@@ -65,8 +65,17 @@
                         <i class="fas fa-map-marker-alt me-2 text-danger"></i>
                         @(string.IsNullOrEmpty(item.Location) ? "No Location" : item.Location)
                     </p>
+                    
+                    <div class="d-flex gap-2 mb-3">
+                        <span class="badge bg-primary">
+                            <i class="fas fa-user-graduate me-1"></i>@item.Seniors.Count Seniors
+                        </span>
+                        <span class="badge bg-info">
+                            <i class="fas fa-users me-1"></i>@item.Seniors.Sum(s => s.Guests.Count) Guests
+                        </span>
+                    </div>
 
-                    <a asp-action="Details" asp-route-id="@item.EventId" class="btn btn-outline-primary w-100 mt-3">
+                    <a asp-action="Details" asp-route-id="@item.EventId" class="btn btn-outline-primary w-100 mt-2">
                         <i class="fas fa-users me-1"></i>Manage Seniors
                     </a>
                 </div>
