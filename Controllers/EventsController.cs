@@ -125,12 +125,27 @@ namespace VivuqeQRSystem.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var @event = await _context.Events.FindAsync(id);
+            var @event = await _context.Events
+                .Include(e => e.Seniors)
+                    .ThenInclude(s => s.Guests)
+                .FirstOrDefaultAsync(e => e.EventId == id);
+            
             if (@event != null)
             {
+                // First, delete all guests for each senior
+                foreach (var senior in @event.Seniors)
+                {
+                    _context.Guests.RemoveRange(senior.Guests);
+                }
+                
+                // Then, delete all seniors
+                _context.Seniors.RemoveRange(@event.Seniors);
+                
+                // Finally, delete the event
                 _context.Events.Remove(@event);
+                
                 await _context.SaveChangesAsync();
-                await _auditService.LogAsync("Delete", "Event", id.ToString(), $"Deleted event '{@event.Name}'");
+                await _auditService.LogAsync("Delete", "Event", id.ToString(), $"Deleted event '{@event.Name}' with {@event.Seniors.Count} seniors");
             }
             return RedirectToAction(nameof(Index));
         }
