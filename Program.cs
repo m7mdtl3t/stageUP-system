@@ -60,8 +60,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     
-    // Ensure database and tables are created (for production)
-    db.Database.EnsureCreated();
+    // Apply pending migrations automatically (this adds new columns like ShareToken)
+    db.Database.Migrate();
 
     var seedEnabled = app.Configuration.GetValue<bool?>("SeedOnStartup") ?? false;
     var isDev = app.Environment.IsDevelopment();
