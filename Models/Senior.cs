@@ -24,6 +24,9 @@ namespace VivuqeQRSystem.Models
         public int? EventId { get; set; }
         public Event? Event { get; set; }
 
+        [StringLength(50)]
+        public string? ShareToken { get; set; }
+
         public ICollection<Guest> Guests { get; set; } = new List<Guest>();
     }
 }

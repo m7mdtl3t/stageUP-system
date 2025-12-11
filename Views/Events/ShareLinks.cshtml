@@ -1,0 +1,159 @@
+@model VivuqeQRSystem.Models.Event
+
+@{
+    ViewData["Title"] = "Share Links - " + Model.Name;
+    var baseUrl = ViewBag.BaseUrl as string ?? "https://stageup-qr.fly.dev";
+}
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card vivuqe-card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h4 class="mb-1">
+                        <i class="fas fa-link text-primary me-2"></i>Share Links
+                    </h4>
+                    <p class="text-white-50 mb-0">
+                        <i class="fas fa-calendar me-1"></i>@Model.Name • 
+                        <span class="badge bg-primary">@Model.Seniors.Count Seniors</span>
+                    </p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <form asp-action="GenerateTokens" asp-route-id="@Model.EventId" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-key me-1"></i>Generate Tokens
+                        </button>
+                    </form>
+                    <a asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Back
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Instructions -->
+                <div class="alert alert-info mb-4">
+                    <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>إزاي تبعت اللينكات للـ Seniors:</h6>
+                    <ol class="mb-0 ps-3">
+                        <li>دوس <strong>"Generate Tokens"</strong> لو أول مرة</li>
+                        <li>دوس <strong>"WhatsApp"</strong> جنب كل Senior</li>
+                        <li>هيتبعتله رسالة فيها اللينك الخاص بيه!</li>
+                    </ol>
+                </div>
+
+                <!-- Senior List -->
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user-graduate me-1"></i>Senior</th>
+                                <th><i class="fas fa-phone me-1"></i>Phone</th>
+                                <th><i class="fas fa-users me-1"></i>Guests</th>
+                                <th><i class="fas fa-link me-1"></i>Share Link</th>
+                                <th><i class="fas fa-cogs"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var senior in Model.Seniors)
+                            {
+                                var hasToken = !string.IsNullOrEmpty(senior.ShareToken);
+                                var shareLink = hasToken ? $"{baseUrl}/Share/{senior.ShareToken}" : "";
+                                var seniorPhone = senior.PhoneNumber?.Replace(" ", "").Replace("-", "").Replace("+", "") ?? "";
+                                if (seniorPhone.StartsWith("0"))
+                                {
+                                    seniorPhone = "2" + seniorPhone;
+                                }
+                                
+                                <tr>
+                                    <td><strong>@senior.Name</strong></td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(senior.PhoneNumber))
+                                        {
+                                            <span class="badge bg-secondary">@senior.PhoneNumber</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>No phone</span>
+                                        }
+                                    </td>
+                                    <td><span class="badge bg-primary">@senior.NumberOfGuests</span></td>
+                                    <td>
+                                        @if (hasToken)
+                                        {
+                                            <code class="text-success small">@shareLink</code>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>No token</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (hasToken)
+                                        {
+                                            <button class="btn btn-success btn-sm whatsapp-btn" 
+                                                    data-name="@senior.Name" 
+                                                    data-phone="@seniorPhone"
+                                                    data-link="@shareLink">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </button>
+                                            <button class="btn btn-outline-light btn-sm copy-btn" 
+                                                    data-link="@shareLink" 
+                                                    title="Copy Link">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (!Model.Seniors.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-users-slash fa-4x text-white-50 mb-3"></i>
+                        <h5 class="text-white-50">No Seniors</h5>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // WhatsApp button - send link to senior
+        document.querySelectorAll('.whatsapp-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const name = this.getAttribute('data-name');
+                const phone = this.getAttribute('data-phone');
+                const link = this.getAttribute('data-link');
+                
+                const message = ` ${name}! 👋
+ده لينك الجيست بتوعك عشان تبعتلهم الانفيتيشن:
+👉 ${link}`;
+                
+                const encodedMessage = encodeURIComponent(message);
+                let whatsappUrl = phone 
+                    ? `https://wa.me/${phone}?text=${encodedMessage}`
+                    : `https://wa.me/?text=${encodedMessage}`;
+                
+                window.open(whatsappUrl, '_blank');
+            });
+        });
+
+        // Copy link button
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const link = this.getAttribute('data-link');
+                navigator.clipboard.writeText(link).then(() => {
+                    const icon = this.querySelector('i');
+                    icon.className = 'fas fa-check text-success';
+                    setTimeout(() => {
+                        icon.className = 'fas fa-copy';
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+}

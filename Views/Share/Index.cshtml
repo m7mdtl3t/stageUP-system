@@ -1,0 +1,171 @@
+@model VivuqeQRSystem.Models.Senior
+
+@{
+    Layout = null; // No layout - standalone public page
+    var eventDate = Model.Event?.Date.ToString("dd-MM-yyyy") ?? "11-12-2025";
+    var eventLocation = Model.Event?.Location ?? "New Life – الواسطي";
+    var eventName = Model.Event?.Name ?? "25 Jun School Fun Day";
+    var inviteLink = "https://stageup-qr.fly.dev/SasFunDay";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Invitations - @Model.Name</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --vivuqe-primary: #8B5CF6;
+            --vivuqe-dark: #1a1a2e;
+            --vivuqe-darker: #0f0f1a;
+        }
+        body {
+            background: linear-gradient(135deg, var(--vivuqe-darker) 0%, var(--vivuqe-dark) 100%);
+            min-height: 100vh;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 16px;
+        }
+        .card-header {
+            background: rgba(139,92,246,0.1);
+            border-bottom: 1px solid rgba(139,92,246,0.2);
+        }
+        .list-group-item {
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(255,255,255,0.1);
+        }
+        .btn-whatsapp {
+            background: #25D366;
+            border: none;
+            color: white;
+        }
+        .btn-whatsapp:hover {
+            background: #128C7E;
+            color: white;
+        }
+        .header-icon {
+            font-size: 3rem;
+            color: var(--vivuqe-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <i class="fas fa-share-alt header-icon mb-3"></i>
+                    <h2>مرحباً @Model.Name! 👋</h2>
+                    <p class="text-white-50">ابعت الدعوات لضيوفك من هنا</p>
+                    <span class="badge bg-primary fs-6">
+                        <i class="fas fa-users me-1"></i>@Model.Guests.Count ضيف
+                    </span>
+                </div>
+
+                <!-- Instructions -->
+                <div class="alert alert-info mb-4" style="background: rgba(13,202,240,0.1); border-color: rgba(13,202,240,0.3);">
+                    <h6><i class="fas fa-info-circle me-2"></i>إزاي تبعت الدعوات:</h6>
+                    <ol class="mb-0 ps-3">
+                        <li>دوس على <strong>WhatsApp</strong> جنب كل ضيف</li>
+                        <li>هيفتح WhatsApp برسالة جاهزة</li>
+                        <li>دوس <strong>Send</strong> وخلاص!</li>
+                    </ol>
+                </div>
+
+                <!-- Guest List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>الضيوف</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            @foreach (var guest in Model.Guests)
+                            {
+                                var guestPhone = guest.PhoneNumber?.Replace(" ", "").Replace("-", "").Replace("+", "") ?? "";
+                                if (guestPhone.StartsWith("0"))
+                                {
+                                    guestPhone = "2" + guestPhone;
+                                }
+                                
+                                <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+                                    <div>
+                                        <i class="fas fa-user me-2 text-primary"></i>
+                                        <strong>@guest.Name</strong>
+                                        @if (!string.IsNullOrEmpty(guest.PhoneNumber))
+                                        {
+                                            <span class="badge bg-secondary ms-2">@guest.PhoneNumber</span>
+                                        }
+                                    </div>
+                                    <button class="btn btn-whatsapp btn-sm whatsapp-btn" 
+                                            data-name="@guest.Name" 
+                                            data-phone="@guestPhone">
+                                        <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @if (!Model.Guests.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-users-slash fa-4x text-white-50 mb-3"></i>
+                        <h5 class="text-white-50">مفيش ضيوف</h5>
+                    </div>
+                }
+
+                <!-- Footer -->
+                <div class="text-center mt-4 text-white-50">
+                    <small>Powered by <strong>StageUP</strong> 💙</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const eventName = '@Html.Raw(eventName.Replace("'", "\\'"))';
+        const eventDate = '@eventDate';
+        const eventLocation = '@Html.Raw(eventLocation.Replace("'", "\\'"))';
+        const inviteLink = '@inviteLink';
+
+        function buildMessage(guestName) {
+            return `Hello ${guestName}, ✨
+You're exclusively invited to the ${eventName} — an elegant evening designed for joyful moments, warm energy, and a beautifully curated experience.
+
+📅 ${eventDate}
+⏰ 6:00 PM sharp
+📍 ${eventLocation}
+
+Open your personalized invitation & location details:
+👉 ${inviteLink}
+
+See you there. 💙
+— StageUP Team`;
+        }
+
+        document.querySelectorAll('.whatsapp-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const name = this.getAttribute('data-name');
+                const phone = this.getAttribute('data-phone');
+                const message = buildMessage(name);
+                const encodedMessage = encodeURIComponent(message);
+                
+                let whatsappUrl = phone 
+                    ? `https://wa.me/${phone}?text=${encodedMessage}`
+                    : `https://wa.me/?text=${encodedMessage}`;
+                
+                window.open(whatsappUrl, '_blank');
+            });
+        });
+    </script>
+</body>
+</html>

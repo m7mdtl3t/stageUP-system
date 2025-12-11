@@ -56,6 +56,9 @@
                     <a class="btn btn-outline-light btn-sm" href="@Url.Action("QrImage", new { id = Model.SeniorId })" download>
                         <i class="fas fa-download me-1"></i>Download QR
                     </a>
+                    <a class="btn btn-success btn-sm" href="@Url.Action("ShareInvitations", new { id = Model.SeniorId })">
+                        <i class="fab fa-whatsapp me-1"></i>Share Invitations
+                    </a>
                 </div>
                 
                 <div class="d-grid gap-2">

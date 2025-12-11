@@ -188,6 +188,45 @@ namespace VivuqeQRSystem.Controllers
             return _context.Events.Any(e => e.EventId == id);
         }
 
+        // GET: Events/ShareLinks/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ShareLinks(int id)
+        {
+            var @event = await _context.Events
+                .Include(e => e.Seniors)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.EventId == id);
+            
+            if (@event == null) return NotFound();
+
+            ViewBag.BaseUrl = $"{Request.Scheme}://{Request.Host}";
+            return View(@event);
+        }
+
+        // POST: Events/GenerateTokens/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GenerateTokens(int id)
+        {
+            var seniors = await _context.Seniors
+                .Where(s => s.EventId == id)
+                .ToListAsync();
+
+            foreach (var senior in seniors)
+            {
+                if (string.IsNullOrEmpty(senior.ShareToken))
+                {
+                    senior.ShareToken = Guid.NewGuid().ToString("N").Substring(0, 10);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await _auditService.LogAsync("GenerateTokens", "Event", id.ToString(), $"Generated share tokens for {seniors.Count} seniors");
+
+            return RedirectToAction(nameof(ShareLinks), new { id });
+        }
+
         [Authorize(Roles = "Admin")]
         public IActionResult Import(int eventId)
         {

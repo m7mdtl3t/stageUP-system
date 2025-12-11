@@ -232,5 +232,19 @@ namespace VivuqeQRSystem.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = seniorId });
         }
+
+        // GET: Seniors/ShareInvitations/5
+        public async Task<IActionResult> ShareInvitations(int id)
+        {
+            var senior = await _context.Seniors
+                .Include(s => s.Guests)
+                .Include(s => s.Event)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.SeniorId == id);
+            
+            if (senior == null) return NotFound();
+
+            return View(senior);
+        }
     }
 }
