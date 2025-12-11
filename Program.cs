@@ -127,7 +127,7 @@ app.UseAuthorization();
 // Custom route for SAS Fun Day landing page
 app.MapControllerRoute(
     name: "sasfunday",
-    pattern: "SasFunDay",
+    pattern: "25JunSchoolFunDay",
     defaults: new { controller = "Invitations", action = "SasFunDay" });
 
 app.MapControllerRoute(
