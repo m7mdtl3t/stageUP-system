@@ -60,8 +60,16 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     
-    // Apply pending migrations automatically (this adds new columns like ShareToken)
-    db.Database.Migrate();
+    // Try to apply migrations, fallback to EnsureCreated for existing databases
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch
+    {
+        // If migration fails (e.g., database was created with EnsureCreated), just ensure tables exist
+        db.Database.EnsureCreated();
+    }
 
     var seedEnabled = app.Configuration.GetValue<bool?>("SeedOnStartup") ?? false;
     var isDev = app.Environment.IsDevelopment();
