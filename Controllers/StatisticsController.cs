@@ -18,13 +18,16 @@ namespace VivuqeQRSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Single optimized query with AsNoTracking
             var events = await _context.Events
                 .Include(e => e.Seniors)
                     .ThenInclude(s => s.Guests)
+                .AsNoTracking()
                 .ToListAsync();
 
-            var allSeniors = await _context.Seniors.Include(s => s.Guests).ToListAsync();
-            var allGuests = await _context.Guests.ToListAsync();
+            // Calculate totals from the single query (no extra DB calls)
+            var allSeniors = events.SelectMany(e => e.Seniors).ToList();
+            var allGuests = allSeniors.SelectMany(s => s.Guests).ToList();
 
             var viewModel = new StatisticsViewModel
             {
