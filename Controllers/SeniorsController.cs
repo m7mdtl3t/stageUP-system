@@ -79,6 +79,15 @@ namespace VivuqeQRSystem.Controllers
         {
             if (id != senior.SeniorId) return NotFound();
             if (!ModelState.IsValid) return View(senior);
+            
+            // Get the existing senior to preserve EventId and ShareToken
+            var existingSenior = await _context.Seniors.AsNoTracking().FirstOrDefaultAsync(s => s.SeniorId == id);
+            if (existingSenior != null)
+            {
+                senior.EventId = existingSenior.EventId;
+                senior.ShareToken = existingSenior.ShareToken;
+            }
+            
             _context.Update(senior);
             await _context.SaveChangesAsync();
             await _auditService.LogAsync("Update", "Senior", senior.SeniorId.ToString(), $"Updated senior '{senior.Name}'");
