@@ -32,6 +32,7 @@ namespace VivuqeQRSystem.Controllers
         }
 
         // GET: Events (Dashboard)
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var events = await _context.Events.AsNoTracking().ToListAsync();
@@ -47,6 +48,17 @@ namespace VivuqeQRSystem.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
+
+            // Role Check: Senior can only view their assigned event
+            if (User.IsInRole("Senior"))
+            {
+                var username = User.Identity?.Name;
+                var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Username == username);
+                if (user == null || user.AssignedEventId != id)
+                {
+                    return Forbid(); // Or redirect to their assigned event
+                }
+            }
 
             var @event = await _context.Events
                 .Include(e => e.Seniors)

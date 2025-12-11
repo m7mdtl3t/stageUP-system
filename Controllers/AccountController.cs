@@ -73,6 +73,12 @@ namespace VivuqeQRSystem.Controllers
                 return Redirect(returnUrl);
             }
 
+            // Redirect Seniors to their assigned event
+            if (user.Role == "Senior" && user.AssignedEventId.HasValue)
+            {
+                return RedirectToAction("Details", "Events", new { id = user.AssignedEventId });
+            }
+
             return RedirectToAction("Index", "Home");
         }
 

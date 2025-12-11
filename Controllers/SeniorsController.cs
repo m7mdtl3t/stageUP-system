@@ -24,6 +24,7 @@ namespace VivuqeQRSystem.Controllers
             _auditService = auditService;
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(int? eventId, int pageNumber = 1)
         {
             const int pageSize = 12;
@@ -114,7 +115,19 @@ namespace VivuqeQRSystem.Controllers
             var senior = await _context.Seniors
                 .Include(s => s.Guests)
                 .FirstOrDefaultAsync(s => s.SeniorId == id);
+            
             if (senior == null) return NotFound();
+
+            // Role Check: Senior user can only view seniors in their assigned event
+            if (User.IsInRole("Senior"))
+            {
+                var username = User.Identity?.Name;
+                var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Username == username);
+                if (user == null || user.AssignedEventId != senior.EventId)
+                {
+                    return Forbid();
+                }
+            }
 
             // Build public URL
             var publicHost = _configuration["PublicHost"];
@@ -147,6 +160,7 @@ namespace VivuqeQRSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> MarkAttendance(int guestId)
         {
             var guest = await _context.Guests.FindAsync(guestId);
@@ -163,6 +177,7 @@ namespace VivuqeQRSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> UnmarkAttendance(int guestId)
         {
             var guest = await _context.Guests.FindAsync(guestId);

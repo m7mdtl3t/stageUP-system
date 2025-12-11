@@ -83,19 +83,21 @@ namespace VivuqeQRSystem.Controllers
         // GET: Users/Create
         public IActionResult Create()
         {
+            ViewBag.Events = _context.Events.Select(e => new { e.EventId, e.Name }).ToList();
             return View();
         }
 
         // POST: Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Username,Password,Role")] User user)
+        public async Task<IActionResult> Create([Bind("Username,Password,Role,AssignedEventId")] User user)
         {
             if (ModelState.IsValid)
             {
                 if (await _context.Users.AnyAsync(u => u.Username == user.Username))
                 {
                     ModelState.AddModelError("Username", "Username already exists.");
+                    ViewBag.Events = _context.Events.Select(e => new { e.EventId, e.Name }).ToList();
                     return View(user);
                 }
 
@@ -107,6 +109,7 @@ namespace VivuqeQRSystem.Controllers
                 
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Events = _context.Events.Select(e => new { e.EventId, e.Name }).ToList();
             return View(user);
         }
 
@@ -117,13 +120,14 @@ namespace VivuqeQRSystem.Controllers
 
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
+            ViewBag.Events = _context.Events.Select(e => new { e.EventId, e.Name }).ToList();
             return View(user);
         }
 
         // POST: Users/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Username,Password,Role")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Username,Password,Role,AssignedEventId")] User user)
         {
             if (id != user.Id) return NotFound();
 
@@ -144,6 +148,7 @@ namespace VivuqeQRSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Events = _context.Events.Select(e => new { e.EventId, e.Name }).ToList();
             return View(user);
         }
 

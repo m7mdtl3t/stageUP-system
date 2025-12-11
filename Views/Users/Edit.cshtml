@@ -30,11 +30,19 @@
 
                     <div class="mb-4">
                         <label asp-for="Role" class="form-label">Role</label>
-                        <select asp-for="Role" class="form-select">
-                            <option value="User">User (Read Only)</option>
+                        <select asp-for="Role" class="form-select" id="roleSelect">
+                            <option value="User">User (Read Only - All Events)</option>
+                            <option value="Senior">Senior (Read Only - Specific Event)</option>
                             <option value="Admin">Admin (Full Access)</option>
                         </select>
                         <span asp-validation-for="Role" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4" id="eventSection" style="@(Model.Role == "Senior" ? "display:block;" : "display:none;")">
+                        <label asp-for="AssignedEventId" class="form-label">Assign Event (For Senior Role)</label>
+                        <select asp-for="AssignedEventId" class="form-select" asp-items="@(new SelectList(ViewBag.Events, "EventId", "Name", Model.AssignedEventId))">
+                            <option value="">-- Select Event --</option>
+                        </select>
                     </div>
 
                     <div class="d-grid gap-2">
@@ -49,4 +57,14 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById('roleSelect').addEventListener('change', function() {
+            var eventSection = document.getElementById('eventSection');
+            if (this.value === 'Senior') {
+                eventSection.style.display = 'block';
+            } else {
+                eventSection.style.display = 'none';
+            }
+        });
+    </script>
 }

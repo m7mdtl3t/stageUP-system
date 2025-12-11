@@ -16,5 +16,8 @@ namespace VivuqeQRSystem.Models
         [Required]
         [StringLength(20)]
         public string Role { get; set; } = "User"; // Default to User
+
+        public int? AssignedEventId { get; set; }
+        public Event? AssignedEvent { get; set; }
     }
 }

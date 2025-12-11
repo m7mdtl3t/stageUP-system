@@ -154,12 +154,15 @@
                                 <td class="text-end">
                                     @if (!g.IsAttended)
                                     {
+                                        @if (!User.IsInRole("Senior"))
+                                        {
                                         <form asp-action="MarkAttendance" method="post" class="d-inline">
                                             <input type="hidden" name="guestId" value="@g.GuestId" />
                                             <button type="submit" class="btn btn-sm btn-success" title="Mark Attended">
                                                 <i class="fas fa-check"></i>
                                             </button>
                                         </form>
+                                        }
                                         @if (User.IsInRole("Admin"))
                                         {
                                         <button class="btn btn-sm btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#editGuest-@g.GuestId" title="Edit">
@@ -175,12 +178,15 @@
                                     }
                                     else
                                     {
+                                        @if (!User.IsInRole("Senior"))
+                                        {
                                         <form asp-action="UnmarkAttendance" method="post" class="d-inline">
                                             <input type="hidden" name="guestId" value="@g.GuestId" />
                                             <button type="submit" class="btn btn-sm btn-outline-warning" title="Unmark">
                                                 <i class="fas fa-undo"></i>
                                             </button>
                                         </form>
+                                        }
                                     }
                                 </td>
                             </tr>
