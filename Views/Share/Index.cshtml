@@ -63,10 +63,10 @@
                 <!-- Header -->
                 <div class="text-center mb-4">
                     <i class="fas fa-share-alt header-icon mb-3"></i>
-                    <h2>مرحباً @Model.Name! 👋</h2>
-                    <p class="text-white-50">ابعت الدعوات لضيوفك من هنا</p>
+                    <h2>Hi @Model.Name! 👋</h2>
+                    <p class="text-white-50">ابعت الانفيتيشن لجيستك من هنا</p>
                     <span class="badge bg-primary fs-6">
-                        <i class="fas fa-users me-1"></i>@Model.Guests.Count ضيف
+                        <i class="fas fa-users me-1"></i>@Model.Guests.Count Guest
                     </span>
                 </div>
 
@@ -75,7 +75,7 @@
                     <h6><i class="fas fa-info-circle me-2"></i>إزاي تبعت الانفيتيشن:</h6>
                     <ol class="mb-0 ps-3">
                         <li>دوس على <strong>WhatsApp</strong> جنب كل جيست</li>
-                        <li>هيفتح WhatsApp برسالة جاهزة</li>
+                        <li>هيفتح الواتساب برسالة جاهزة</li>
                         <li>دوس <strong>Send</strong> وخلاص!</li>
                     </ol>
                 </div>
@@ -83,7 +83,7 @@
                 <!-- Guest List -->
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>الضيوف</h5>
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Guests</h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="list-group list-group-flush">
@@ -95,18 +95,20 @@
                                     guestPhone = "2" + guestPhone;
                                 }
                                 
-                                <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
-                                    <div>
-                                        <i class="fas fa-user me-2 text-primary"></i>
-                                        <strong>@guest.Name</strong>
+                            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3" style="background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); border-radius: 12px; margin-bottom: 8px;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); padding: 8px 16px; border-radius: 10px; font-weight: 700; color: white; font-size: 1rem;">
+                                            <i class="fas fa-user me-2"></i>@guest.Name
+                                        </span>
                                         @if (!string.IsNullOrEmpty(guest.PhoneNumber))
                                         {
-                                            <span class="badge bg-secondary ms-2">@guest.PhoneNumber</span>
+                                            <span style="background: #1e1e3f; padding: 6px 12px; border-radius: 8px; color: #a5b4fc; font-size: 0.85rem;">@guest.PhoneNumber</span>
                                         }
                                     </div>
-                                    <button class="btn btn-whatsapp btn-sm whatsapp-btn" 
+                                    <button class="btn btn-whatsapp whatsapp-btn" 
                                             data-name="@guest.Name" 
-                                            data-phone="@guestPhone">
+                                            data-phone="@guestPhone"
+                                            style="padding: 10px 20px; border-radius: 10px; font-weight: 600;">
                                         <i class="fab fa-whatsapp me-1"></i>WhatsApp
                                     </button>
                                 </div>
@@ -119,13 +121,14 @@
                 {
                     <div class="text-center py-5">
                         <i class="fas fa-users-slash fa-4x text-white-50 mb-3"></i>
-                        <h5 class="text-white-50">مفيش ضيوف</h5>
+                        <h5 class="text-white-50">مفيش جيستات !</h5>
                     </div>
                 }
 
                 <!-- Footer -->
                 <div class="text-center mt-4 text-white-50">
                     <small>Powered by <strong>StageUP</strong> 💙</small>
+                    <small>Developed by <strong>Muhamed Talaat</strong> </small>
                 </div>
             </div>
         </div>
