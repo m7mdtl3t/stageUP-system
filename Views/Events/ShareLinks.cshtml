@@ -24,6 +24,9 @@
                             <i class="fas fa-key me-1"></i>Generate Tokens
                         </button>
                     </form>
+                    <button id="copyAllBtn" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-clipboard-list me-1"></i>Copy All as List
+                    </button>
                     <a asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-outline-light btn-sm">
                         <i class="fas fa-arrow-left me-1"></i>Back
                     </a>
@@ -34,9 +37,9 @@
                 <div class="alert alert-info mb-4">
                     <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>إزاي تبعت اللينكات للـ Seniors:</h6>
                     <ol class="mb-0 ps-3">
-                        <li>دوس <strong>"Generate Tokens"</strong> لو أول مرة</li>
-                        <li>دوس <strong>"WhatsApp"</strong> جنب كل Senior</li>
-                        <li>هيتبعتله رسالة فيها اللينك الخاص بيه!</li>
+                        <li>دوس <strong>"Generate Tokens"</strong> لو أول مرة عشان تعمل لينكات</li>
+                        <li>دوس <strong>"WhatsApp"</strong> عشان تبعت لكل واحد لوحده</li>
+                        <li>أو دوس <strong>"Copy All as List"</strong> عشان تاخد كل اللينكات كوبي مرة واحدة</li>
                     </ol>
                 </div>
 
@@ -63,7 +66,7 @@
                                     seniorPhone = "2" + seniorPhone;
                                 }
                                 
-                                <tr>
+                                <tr class="senior-row" data-name="@senior.Name" data-link="@shareLink">
                                     <td><strong>@senior.Name</strong></td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(senior.PhoneNumber))
@@ -154,6 +157,39 @@
                     }, 2000);
                 });
             });
+        });
+
+        // Copy All as List button
+        document.getElementById('copyAllBtn')?.addEventListener('click', function() {
+            let text = "📋 Senior Share Links:\n\n";
+            let count = 0;
+            
+            document.querySelectorAll('.senior-row').forEach(row => {
+                const name = row.getAttribute('data-name');
+                const link = row.getAttribute('data-link');
+                
+                if (link && link.trim() !== "") {
+                    text += `${name}:\n${link}\n\n`;
+                    count++;
+                }
+            });
+
+            if (count > 0) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalHtml = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+                    this.classList.remove('btn-outline-info');
+                    this.classList.add('btn-success');
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalHtml;
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-outline-info');
+                    }, 2000);
+                });
+            } else {
+                alert("No links generated yet! Please click 'Generate Tokens' first.");
+            }
         });
     </script>
 }
