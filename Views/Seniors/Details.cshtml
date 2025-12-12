@@ -261,7 +261,7 @@
 
 @section Scripts {
     <script>
-        // Highlight guest from search
+        // Highlight guest from search AND Auto-Mark Attendance
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const highlightGuestId = urlParams.get('highlightGuest');
@@ -269,15 +269,26 @@
             if (highlightGuestId) {
                 const guestRow = document.querySelector(`tr[data-guest-id="${highlightGuestId}"]`);
                 if (guestRow) {
-                    // Add highlight class
+                    // 1. Add highlight class
                     guestRow.classList.add('guest-highlight');
                     
-                    // Scroll to the guest row
+                    // 2. Scroll to the guest row
                     setTimeout(() => {
                         guestRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 300);
                     
-                    // Remove highlight after 5 seconds
+                    // 3. Auto-Mark Attendance (if not already attended)
+                    const markForm = guestRow.querySelector('form[action$="MarkAttendance"]');
+                    if (markForm) {
+                        // Optional: Confirm before auto-marking or just do it?
+                        // Let's do it immediately for speed, maybe add a visual indicator
+                        console.log("Auto-marking attendance for guest " + highlightGuestId);
+                        
+                        // Submit the form
+                        markForm.submit();
+                    }
+
+                    // Remove highlight after 5 seconds (only if page doesn't reload, but form submit reloads usually)
                     setTimeout(() => {
                         guestRow.classList.remove('guest-highlight');
                     }, 5000);
