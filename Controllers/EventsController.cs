@@ -35,7 +35,11 @@ namespace VivuqeQRSystem.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
-            var events = await _context.Events.AsNoTracking().ToListAsync();
+            var events = await _context.Events
+                .Include(e => e.Seniors)
+                .ThenInclude(s => s.Guests)
+                .AsNoTracking()
+                .ToListAsync();
             
             // Check for legacy data (Seniors without EventId)
             var legacyCount = await _context.Seniors.CountAsync(s => s.EventId == null);
