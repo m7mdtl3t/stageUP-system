@@ -23,5 +23,8 @@ namespace VivuqeQRSystem.Models
         [ForeignKey("Senior")]
         public int SeniorId { get; set; }
         public Senior? Senior { get; set; }
+
+        [StringLength(50)]
+        public string? TicketToken { get; set; } // New property for Digital Ticket
     }
 }

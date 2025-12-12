@@ -263,10 +263,21 @@ namespace VivuqeQRSystem.Controllers
             var senior = await _context.Seniors
                 .Include(s => s.Guests)
                 .Include(s => s.Event)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.SeniorId == id);
             
             if (senior == null) return NotFound();
+
+            // Ensure Ticket Tokens exist
+            bool needsSave = false;
+            foreach (var guest in senior.Guests)
+            {
+                if (string.IsNullOrEmpty(guest.TicketToken))
+                {
+                    guest.TicketToken = Guid.NewGuid().ToString("N");
+                    needsSave = true;
+                }
+            }
+            if (needsSave) await _context.SaveChangesAsync();
 
             return View(senior);
         }

@@ -1,0 +1,174 @@
+@model VivuqeQRSystem.Models.Guest
+@{
+    Layout = null;
+    var eventName = Model.Senior?.Event?.Name ?? "SMS Fun Day";
+    var date = Model.Senior?.Event?.Date.ToString("dd MMM yyyy") ?? "14 Dec 2025";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Ticket - @Model.Name</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f0c29;
+            background-image: linear-gradient(315deg, #0f0c29 0%, #302b63 74%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .ticket-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 6px;
+            background: linear-gradient(90deg, #ff00cc, #333399);
+        }
+        .qr-frame {
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 25px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+        .qr-frame:hover {
+            transform: scale(1.02);
+        }
+        .guest-name {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #fff, #a0a0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        .event-details {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .ticket-label {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 0.75rem;
+            color: #ff00cc;
+            font-weight: 700;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        .senior-ref {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo-text {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .badge-event {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-card">
+        <!-- Content Wrapper that will be blurred -->
+        <div id="ticketContent" style="filter: blur(10px); transition: filter 0.5s ease;">
+            <div class="ticket-label">Official Entry Ticket</div>
+            
+            <h1 class="guest-name">@Model.Name</h1>
+            
+            <div class="event-details">
+                <span><i class="fas fa-calendar-alt me-1"></i> @date</span>
+                <span><i class="fas fa-map-marker-alt me-1"></i> Nile House</span>
+            </div>
+            
+            <div class="qr-frame">
+                <!-- QR Generates link to Admin Scan Action -->
+                <img src="@Url.Action("QrImage", "Tickets", new { token = Model.TicketToken })" width="220" height="220" alt="Ticket QR" class="img-fluid" />
+            </div>
+            
+            <div class="mb-2">
+                <span class="badge-event">@eventName</span>
+            </div>
+
+            <div class="senior-ref">
+            <i class="fas fa-user-graduate me-1"></i> Guest of <strong>@Model.Senior?.Name</strong>
+            </div>
+
+            <div class="mt-4 small text-white-50" style="font-size: 0.8rem;">
+                Please present this QR code at the entrance.<br/>
+                Take a screenshot to save your ticket. 📸
+            </div>
+
+            <div class="logo-text">Powered by StageUP</div>
+        </div>
+
+        <!-- Social Lock Overlay -->
+        <div id="lockOverlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 24px;">
+            <div class="text-center p-4">
+                <i class="fab fa-instagram fa-4x mb-3" style="background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                <h4 class="fw-bold mb-2">Unlock Your Ticket</h4>
+                <p class="small text-white-50 mb-4">Follow us on Instagram to reveal your QR Code</p>
+                <a href="https://www.instagram.com/stageup_" target="_blank" id="unlockBtn" class="btn btn-light btn-lg rounded-pill fw-bold px-5 shadow">
+                    <i class="fab fa-instagram me-2"></i>Follow to Unlock
+                </a>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('unlockBtn').addEventListener('click', function() {
+            // Wait a moment for them to create the "follow" intent (or just open the tab)
+            setTimeout(function() {
+                // Remove blur
+                document.getElementById('ticketContent').style.filter = 'none';
+                // Hide overlay
+                document.getElementById('lockOverlay').style.display = 'none';
+            }, 2000); // 2 second delay to simulate "checking"
+        });
+    </script>
+</body>
+</html>

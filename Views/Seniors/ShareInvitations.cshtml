@@ -62,7 +62,10 @@
                                 }
                             </div>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-success btn-sm whatsapp-btn" data-name="@guest.Name" data-phone="@guestPhone">
+                                <button class="btn btn-success btn-sm whatsapp-btn" 
+                                        data-name="@guest.Name" 
+                                        data-phone="@guestPhone"
+                                        data-ticket-token="@guest.TicketToken">
                                     <i class="fab fa-whatsapp me-1"></i>WhatsApp
                                 </button>
                                 <button class="btn btn-outline-light btn-sm copy-btn" data-name="@guest.Name" title="Copy Message">
@@ -110,22 +113,25 @@
         const eventName = '@Html.Raw(eventName.Replace("'", "\\'"))';
         const eventDate = '@eventDate';
         const eventLocation = '@Html.Raw(eventLocation.Replace("'", "\\'"))';
-        const inviteLink = '@inviteLink';
-
+        // Base URL for ticket links
+        const baseUrl = window.location.origin;
+        
         // Build the invitation message with emojis
-        function buildMessage(guestName) {
-            return `Hello ${guestName}, ✨
-You’re exclusively invited to the 25 Jan School Fun Day — an elegant evening designed for joyful moments, warm energy, and a beautifully curated experience.
+        function buildMessage(guestName, ticketToken) {
+            // Personalized Ticket Link
+            const ticketLink = `${baseUrl}/Ticket/${ticketToken}`;
 
-📅 11–12–2025
-⏰ 6:00 PM (Doors close 6:30 PM)
-📍 New Life
+            return `Hi ${guestName}! ✨
+You’re exclusively invited to the SMS Fun Day
+
+📅 14–12–2025 (14 Dec 2025)
+⏰ 6:00 PM (Doors close 9:00 PM)
+📍 Nile House
 
 Open your personalized invitation & location details:
-👉 ${inviteLink}
+👉 ${ticketLink}
 
-See you there. 💙
-`;
+See you there. 💙`;
         }
 
         // WhatsApp button click
@@ -133,7 +139,9 @@ See you there. 💙
             btn.addEventListener('click', function() {
                 const name = this.getAttribute('data-name');
                 const phone = this.getAttribute('data-phone');
-                const message = buildMessage(name);
+                const ticketToken = this.getAttribute('data-ticket-token');
+                
+                const message = buildMessage(name, ticketToken);
                 const encodedMessage = encodeURIComponent(message);
                 
                 let whatsappUrl;
