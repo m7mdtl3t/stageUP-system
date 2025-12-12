@@ -277,9 +277,10 @@
                         guestRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 300);
                     
-                    // 3. Auto-Mark Attendance (if not already attended)
+                    // 3. Auto-Mark Attendance (ONLY if autoMark=true is present)
+                    const autoMark = urlParams.get('autoMark');
                     const markForm = guestRow.querySelector('form[action$="MarkAttendance"]');
-                    if (markForm) {
+                    if (markForm && autoMark === 'true') {
                         // Optional: Confirm before auto-marking or just do it?
                         // Let's do it immediately for speed, maybe add a visual indicator
                         console.log("Auto-marking attendance for guest " + highlightGuestId);

@@ -52,7 +52,7 @@ namespace VivuqeQRSystem.Controllers
             var host = !string.IsNullOrWhiteSpace(publicHost) ? publicHost : $"{Request.Scheme}://{Request.Host}";
             
             // This URL is what the scanner (Admin/User) will open
-            var url = $"{host}/Seniors/Details/{guest.SeniorId}?highlightGuest={guest.GuestId}";
+            var url = $"{host}/Seniors/Details/{guest.SeniorId}?highlightGuest={guest.GuestId}&autoMark=true";
 
             using var generator = new QRCodeGenerator();
             using QRCodeData data = generator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
