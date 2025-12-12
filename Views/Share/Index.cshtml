@@ -2,10 +2,11 @@
 
 @{
     Layout = null; // No layout - standalone public page
-    var eventDate = Model.Event?.Date.ToString("dd-MM-yyyy") ?? "11-12-2025";
-    var eventLocation = Model.Event?.Location ?? "New Life – الواسطي";
-    var eventName = Model.Event?.Name ?? "25 Jun School Fun Day";
-    var inviteLink = "https://stageup-qr.fly.dev/25JunSchoolFunDay";
+    var eventDate = Model.Event?.TicketDateDisplay ?? Model.Event?.Date.ToString("dd MMM yyyy") ?? "Date TBD";
+    var eventLocation = Model.Event?.TicketLocationDisplay ?? Model.Event?.Location ?? "Location TBD";
+    var eventName = Model.Event?.TicketTitle ?? Model.Event?.Name ?? "Event Name";
+    var eventTime = Model.Event?.TicketTimeDisplay ?? "6:00 PM (Doors close 9:00 PM)";
+    var welcomeMsg = Model.Event?.TicketWelcomeMessage ?? "You’re exclusively invited to the";
 }
 
 <!DOCTYPE html>
@@ -141,8 +142,11 @@
 
     <script>
         const eventName = '@Html.Raw(eventName.Replace("'", "\\'"))';
-        const eventDate = '@eventDate';
+        // Date formatting for message (maybe more readable than dd-MM-yyyy)
+        const eventDateRaw = '@Html.Raw(eventDate.Replace("'", "\\'"))'; 
         const eventLocation = '@Html.Raw(eventLocation.Replace("'", "\\'"))';
+        const eventTime = '@Html.Raw(eventTime.Replace("'", "\\'"))';
+        const welcomeMsg = '@Html.Raw(welcomeMsg.Replace("'", "\\'"))';
         // Base URL for ticket links
         const baseUrl = window.location.origin;
 
@@ -151,11 +155,11 @@
             const ticketLink = `${baseUrl}/Ticket/${ticketToken}`;
 
             return `Hi ${guestName}! ✨
-You’re exclusively invited to the SMS Fun Day
+${welcomeMsg} ${eventName}
 
-📅 14–12–2025 (14 Dec 2025)
-⏰ 6:00 PM (Doors close 9:00 PM)
-📍 Nile House
+📅 ${eventDateRaw}
+⏰ ${eventTime}
+📍 ${eventLocation}
 
 Open your personalized invitation & location details:
 👉 ${ticketLink}

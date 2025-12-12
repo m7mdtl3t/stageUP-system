@@ -1,8 +1,13 @@
 @model VivuqeQRSystem.Models.Guest
 @{
     Layout = null;
-    var eventName = Model.Senior?.Event?.Name ?? "SMS Fun Day";
-    var date = Model.Senior?.Event?.Date.ToString("dd MMM yyyy") ?? "14 Dec 2025";
+    var eventName = Model.Senior?.Event?.TicketTitle ?? Model.Senior?.Event?.Name ?? "Event Name";
+    var date = Model.Senior?.Event?.TicketDateDisplay ?? Model.Senior?.Event?.Date.ToString("dd MMM yyyy") ?? "Date TBD";
+    var location = Model.Senior?.Event?.TicketLocationDisplay ?? Model.Senior?.Event?.Location ?? "Location TBD";
+    
+    // logic for map link
+    var defaultMap = $"https://www.google.com/maps/search/?api=1&query={Uri.EscapeDataString(location)}";
+    var mapLink = !string.IsNullOrEmpty(Model.Senior?.Event?.TicketMapUrl) ? Model.Senior?.Event?.TicketMapUrl : defaultMap;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -120,11 +125,10 @@
             <div class="ticket-label">Official Entry Ticket</div>
             
             <h1 class="guest-name">@Model.Name</h1>
-            
             <div class="event-details">
                 <span><i class="fas fa-calendar-alt me-1"></i> @date</span>
-                <a href="https://maps.app.goo.gl/vpzRT8L2KeQRkU6u9?g_st=ic" target="_blank" style="color: rgba(255,255,255,0.7); text-decoration: none; border-bottom: 1px dotted rgba(255,255,255,0.5);">
-                    <i class="fas fa-map-marker-alt me-1"></i> Nile House
+                <a href="@mapLink" target="_blank" style="color: rgba(255,255,255,0.7); text-decoration: none; border-bottom: 1px dotted rgba(255,255,255,0.5);">
+                    <i class="fas fa-map-marker-alt me-1"></i> @location
                 </a>
             </div>
             

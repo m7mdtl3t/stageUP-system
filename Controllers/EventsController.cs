@@ -243,6 +243,61 @@ namespace VivuqeQRSystem.Controllers
             return RedirectToAction(nameof(ShareLinks), new { id });
         }
 
+        // GET: Events/TicketSettings/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> TicketSettings(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var @event = await _context.Events.FindAsync(id);
+            if (@event == null) return NotFound();
+
+            return View(@event);
+        }
+
+        // POST: Events/TicketSettings/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> TicketSettings(int id, [Bind("EventId,TicketTitle,TicketDateDisplay,TicketLocationDisplay,TicketMapUrl,TicketTimeDisplay,TicketWelcomeMessage")] Event eventSettings)
+        {
+            if (id != eventSettings.EventId) return NotFound();
+
+            var eventToUpdate = await _context.Events.FindAsync(id);
+            if (eventToUpdate == null) return NotFound();
+
+            // validation workaround: we don't bind Name/Date so they will be invalid
+            ModelState.Remove("Name");
+            ModelState.Remove("Date");
+            ModelState.Remove("Location"); // Optional but safer to remove if checked
+
+            if (ModelState.IsValid)
+            {
+                // Only update ticket properties
+                eventToUpdate.TicketTitle = eventSettings.TicketTitle;
+                eventToUpdate.TicketDateDisplay = eventSettings.TicketDateDisplay;
+                eventToUpdate.TicketLocationDisplay = eventSettings.TicketLocationDisplay;
+                eventToUpdate.TicketMapUrl = eventSettings.TicketMapUrl;
+                eventToUpdate.TicketTimeDisplay = eventSettings.TicketTimeDisplay;
+                eventToUpdate.TicketWelcomeMessage = eventSettings.TicketWelcomeMessage;
+
+                try
+                {
+                    _context.Update(eventToUpdate);
+                    await _context.SaveChangesAsync();
+                    await _auditService.LogAsync("Update", "Event", id.ToString(), "Updated ticket customization settings");
+                    TempData["SuccessMessage"] = "Ticket settings updated successfully!";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EventExists(eventToUpdate.EventId)) return NotFound();
+                    else throw;
+                }
+                return RedirectToAction(nameof(TicketSettings), new { id });
+            }
+            return View(eventToUpdate);
+        }
+
         [Authorize(Roles = "Admin")]
         public IActionResult Import(int eventId)
         {

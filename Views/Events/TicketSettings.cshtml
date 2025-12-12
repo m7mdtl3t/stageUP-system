@@ -1,0 +1,90 @@
+@model VivuqeQRSystem.Models.Event
+
+@{
+    ViewData["Title"] = "Ticket Customization";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card vivuqe-card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-bottom border-light border-opacity-10 p-4">
+                    <h4 class="mb-0 text-white">
+                        <i class="fas fa-ticket-alt me-2 text-warning"></i>Ticket Customization
+                    </h4>
+                    <p class="text-white-50 mb-0 mt-1">Customize how the digital ticket looks for guests.</p>
+                </div>
+                <div class="card-body p-4">
+                    
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success d-flex align-items-center mb-4">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <div>@TempData["SuccessMessage"]</div>
+                        </div>
+                    }
+
+                    <form asp-action="TicketSettings">
+                        <input type="hidden" asp-for="EventId" />
+                        
+                        <!-- Preview Note -->
+                        <div class="alert alert-info d-flex align-items-start mb-4">
+                             <i class="fas fa-info-circle me-2 mt-1"></i>
+                             <div>
+                                 <small>These settings override the default Event Name, Date, and Location on the Digital Ticket page. Leave them empty to use the default values.</small>
+                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TicketTitle" class="form-label text-white-50">Ticket Title (Event Name Override)</label>
+                            <input asp-for="TicketTitle" class="form-control" placeholder="e.g. SMS Fun Day (Leave empty to use '@Model.Name')" />
+                            <span asp-validation-for="TicketTitle" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TicketWelcomeMessage" class="form-label text-white-50">Welcome Message (WhatsApp Intro)</label>
+                            <input asp-for="TicketWelcomeMessage" class="form-control" placeholder="e.g. You’re exclusively invited to... (Leave empty for default)" />
+                            <span asp-validation-for="TicketWelcomeMessage" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TicketDateDisplay" class="form-label text-white-50">Ticket Date Text</label>
+                            <input asp-for="TicketDateDisplay" class="form-control" placeholder="e.g. 14 Dec 2025 (Leave empty to use formatted date)" />
+                            <span asp-validation-for="TicketDateDisplay" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TicketTimeDisplay" class="form-label text-white-50">Time Display (WhatsApp/Ticket)</label>
+                            <input asp-for="TicketTimeDisplay" class="form-control" placeholder="e.g. 6:00 PM (Doors close 9:00 PM)" />
+                            <span asp-validation-for="TicketTimeDisplay" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TicketLocationDisplay" class="form-label text-white-50">Ticket Location Text</label>
+                            <input asp-for="TicketLocationDisplay" class="form-control" placeholder="e.g. Nile House (Leave empty to use '@Model.Location')" />
+                            <span asp-validation-for="TicketLocationDisplay" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="TicketMapUrl" class="form-label text-white-50">Map Link (Optional)</label>
+                            <input asp-for="TicketMapUrl" class="form-control" placeholder="Paste full Google Maps link here" />
+                            <div class="form-text text-white-50 small">If empty, a smart search link will be generated based on the location name.</div>
+                            <span asp-validation-for="TicketMapUrl" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold">
+                                <i class="fas fa-save me-2"></i>Save Ticket Settings
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-light">Back to Dashboard</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
