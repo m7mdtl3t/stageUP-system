@@ -166,7 +166,21 @@
         </div>
     </div>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if already unlocked
+            const isUnlocked = localStorage.getItem('ticketUnlocked_' + '@Model.TicketToken');
+            
+            if (isUnlocked === 'true') {
+                // Immediately show content
+                document.getElementById('ticketContent').style.filter = 'none';
+                document.getElementById('lockOverlay').style.display = 'none';
+            }
+        });
+
         document.getElementById('unlockBtn').addEventListener('click', function() {
+            // Save state
+            localStorage.setItem('ticketUnlocked_' + '@Model.TicketToken', 'true');
+
             // Wait a moment for them to create the "follow" intent (or just open the tab)
             setTimeout(function() {
                 // Remove blur

@@ -144,7 +144,7 @@
                                 <td class="d-none d-md-table-cell">
                                     @if (g.IsAttended)
                                     {
-                                        <i class="fas fa-calendar-check me-1"></i>@g.AttendanceTime?.ToLocalTime().ToString("g")
+                                        <i class="fas fa-calendar-check me-1"></i>@g.AttendanceTime?.AddHours(2).ToString("hh:mm tt")
                                     }
                                     else
                                     {

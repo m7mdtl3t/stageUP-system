@@ -293,6 +293,38 @@ namespace VivuqeQRSystem.Controllers
             return _context.Events.Any(e => e.EventId == id);
         }
 
+        // GET: Events/AttendanceList/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AttendanceList(int id)
+        {
+            var @event = await _context.Events
+                .Include(e => e.Seniors)
+                .ThenInclude(s => s.Guests)
+                .FirstOrDefaultAsync(e => e.EventId == id);
+
+            if (@event == null) return NotFound();
+
+            var attendedGuests = @event.Seniors
+                .SelectMany(s => s.Guests)
+                .Where(g => g.IsAttended)
+                .OrderByDescending(g => g.AttendanceTime) // Newest first
+                .Select(g => new GuestSearchResult 
+                {
+                    GuestId = g.GuestId,
+                    Name = g.Name,
+                    SeniorName = g.Senior?.Name ?? "Unknown",
+                    SeniorId = g.SeniorId,
+                    AttendanceTime = g.AttendanceTime,
+                    PhoneNumber = g.PhoneNumber
+                })
+                .ToList();
+
+            ViewBag.EventName = @event.Name;
+            ViewBag.EventId = @event.EventId;
+
+            return View(attendedGuests);
+        }
+
         // GET: Events/ShareLinks/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ShareLinks(int id)

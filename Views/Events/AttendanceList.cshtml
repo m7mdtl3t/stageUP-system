@@ -1,0 +1,80 @@
+@model List<VivuqeQRSystem.Models.GuestSearchResult>
+
+@{
+    ViewData["Title"] = "Live Attendance List";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card vivuqe-card border-success">
+            <div class="card-header border-success bg-success bg-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 text-success">
+                        <i class="fas fa-check-circle me-2"></i>Live Attendance List
+                    </h4>
+                    <span class="badge bg-success fs-6">@Model.Count Present</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="text-white-50">Showing who is currently inside the event <strong>@ViewBag.EventName</strong>.</p>
+                
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-user-clock fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No one has attended yet.</h5>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Guest Name</th>
+                                    <th>Senior (Host)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var g in Model)
+                                {
+                                    <tr>
+                                        <td class="text-success fw-bold">
+                                            @g.AttendanceTime?.AddHours(2).ToString("hh:mm tt")
+                                            <div class="small text-muted fw-normal">@g.AttendanceTime?.AddHours(2).ToString("MMM dd")</div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">@g.Name</div>
+                                            @if (!string.IsNullOrEmpty(g.PhoneNumber))
+                                            {
+                                                <div class="small text-white-50">@g.PhoneNumber</div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Seniors" asp-action="Details" asp-route-id="@g.SeniorId" class="text-decoration-none text-info">
+                                                <i class="fas fa-user-graduate me-1"></i>@g.SeniorName
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Seniors" asp-action="Details" asp-route-id="@g.SeniorId" asp-route-highlightGuest="@g.GuestId" class="btn btn-sm btn-outline-light">
+                                                <i class="fas fa-search me-1"></i>View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a asp-action="Details" asp-route-id="@ViewBag.EventId" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
