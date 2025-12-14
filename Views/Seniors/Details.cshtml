@@ -280,7 +280,19 @@
                     // 3. Auto-Mark Attendance (ONLY if autoMark=true is present)
                     const autoMark = urlParams.get('autoMark');
                     const markForm = guestRow.querySelector('form[action$="MarkAttendance"]');
-                    if (markForm && autoMark === 'true') {
+                    
+                    // Check if already attended (look for the green badge or data attribute)
+                    const isAlreadyAttended = guestRow.querySelector('.badge.bg-success') !== null;
+                    const attendedTime = guestRow.querySelector('td:nth-child(4)')?.innerText.trim();
+
+                    if (isAlreadyAttended && autoMark === 'true') {
+                        // ALREADY SCANNED! Show Error
+                        alert(`⚠️ STOP! ALREADY SCANNED!\n\nThis guest entered at: ${attendedTime}\n\nDO NOT ENTER AGAIN.`);
+                        guestRow.style.backgroundColor = '#ffcccc'; // Red highlight
+                        guestRow.style.border = '2px solid red';
+                    }
+                    else if (markForm && autoMark === 'true') {
+                        // Not attended yet -> Auto Mark
                         // Optional: Confirm before auto-marking or just do it?
                         // Let's do it immediately for speed, maybe add a visual indicator
                         console.log("Auto-marking attendance for guest " + highlightGuestId);
@@ -291,7 +303,7 @@
 
                     // Remove highlight after 5 seconds (only if page doesn't reload, but form submit reloads usually)
                     setTimeout(() => {
-                        guestRow.classList.remove('guest-highlight');
+                        if(!isAlreadyAttended) guestRow.classList.remove('guest-highlight');
                     }, 5000);
                 }
             }
