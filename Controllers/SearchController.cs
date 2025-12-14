@@ -31,8 +31,9 @@ namespace VivuqeQRSystem.Controllers
             var seniors = await _context.Seniors
                 .Include(s => s.Event)
                 .Include(s => s.Guests)
-                .Where(s => s.Name.ToLower().Contains(searchTerm) ||
-                           (s.PhoneNumber != null && s.PhoneNumber.Contains(searchTerm)))
+                .Where(s => (s.Event != null && s.Event.IsActive) &&
+                           (s.Name.ToLower().Contains(searchTerm) ||
+                           (s.PhoneNumber != null && s.PhoneNumber.Contains(searchTerm))))
                 .Take(20)
                 .AsNoTracking()
                 .ToListAsync();
@@ -52,8 +53,9 @@ namespace VivuqeQRSystem.Controllers
             var guests = await _context.Guests
                 .Include(g => g.Senior)
                     .ThenInclude(s => s!.Event)
-                .Where(g => g.Name.ToLower().Contains(searchTerm) ||
-                           (g.PhoneNumber != null && g.PhoneNumber.Contains(searchTerm)))
+                .Where(g => (g.Senior != null && g.Senior.Event != null && g.Senior.Event.IsActive) &&
+                           (g.Name.ToLower().Contains(searchTerm) ||
+                           (g.PhoneNumber != null && g.PhoneNumber.Contains(searchTerm))))
                 .Take(20)
                 .AsNoTracking()
                 .ToListAsync();
@@ -89,8 +91,9 @@ namespace VivuqeQRSystem.Controllers
             var seniors = await _context.Seniors
                 .Include(s => s.Event)
                 .Include(s => s.Guests)
-                .Where(s => s.Name.ToLower().Contains(searchTerm) ||
-                           (s.PhoneNumber != null && s.PhoneNumber.Contains(searchTerm)))
+                .Where(s => (s.Event != null && s.Event.IsActive) &&
+                           (s.Name.ToLower().Contains(searchTerm) ||
+                           (s.PhoneNumber != null && s.PhoneNumber.Contains(searchTerm))))
                 .Take(10)
                 .AsNoTracking()
                 .Select(s => new
@@ -122,8 +125,9 @@ namespace VivuqeQRSystem.Controllers
             var guests = await _context.Guests
                 .Include(g => g.Senior)
                     .ThenInclude(s => s!.Event)
-                .Where(g => g.Name.ToLower().Contains(searchTerm) ||
-                           (g.PhoneNumber != null && g.PhoneNumber.Contains(searchTerm)))
+                .Where(g => (g.Senior != null && g.Senior.Event != null && g.Senior.Event.IsActive) &&
+                           (g.Name.ToLower().Contains(searchTerm) ||
+                           (g.PhoneNumber != null && g.PhoneNumber.Contains(searchTerm))))
                 .Take(10)
                 .AsNoTracking()
                 .Select(g => new
@@ -157,8 +161,9 @@ namespace VivuqeQRSystem.Controllers
             // Search Seniors
             var seniors = await _context.Seniors
                 .Include(s => s.Event)
-                .Where(s => s.Name.ToLower().Contains(searchTerm) ||
-                           (s.PhoneNumber != null && s.PhoneNumber.Contains(searchTerm)))
+                .Where(s => (s.Event != null && s.Event.IsActive) &&
+                           (s.Name.ToLower().Contains(searchTerm) ||
+                           (s.PhoneNumber != null && s.PhoneNumber.Contains(searchTerm))))
                 .Take(5)
                 .AsNoTracking()
                 .Select(s => new
@@ -177,8 +182,9 @@ namespace VivuqeQRSystem.Controllers
             var guests = await _context.Guests
                 .Include(g => g.Senior)
                     .ThenInclude(s => s!.Event)
-                .Where(g => g.Name.ToLower().Contains(searchTerm) ||
-                           (g.PhoneNumber != null && g.PhoneNumber.Contains(searchTerm)))
+                .Where(g => (g.Senior != null && g.Senior.Event != null && g.Senior.Event.IsActive) &&
+                           (g.Name.ToLower().Contains(searchTerm) ||
+                           (g.PhoneNumber != null && g.PhoneNumber.Contains(searchTerm))))
                 .Take(5)
                 .AsNoTracking()
                 .Select(g => new
