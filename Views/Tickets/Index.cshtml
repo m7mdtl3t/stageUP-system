@@ -117,11 +117,41 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
+    <script>
+        // Run immediately to prevent flash
+        (function() {
+            try {
+                var token = '@Model.TicketToken';
+                var key = 'ticketUnlocked_' + token;
+                
+                // Check LocalStorage
+                var ls = localStorage.getItem(key);
+                
+                // Check Cookies
+                var cookieMatch = document.cookie.match(new RegExp('(^| )' + key + '=([^;]+)'));
+                var cookie = cookieMatch ? cookieMatch[2] : null;
+
+                if (ls === 'true' || cookie === 'true') {
+                    document.documentElement.className += ' ticket-unlocked';
+                    // We need to wait for DOM to modify elements, but we can set a flag
+                    window.isTicketUnlocked = true;
+                }
+            } catch(e) {
+                console.error("Storage access error:", e);
+            }
+        })();
+    </script>
+    <style>
+        /* CSS-based hiding to prevent flash */
+        .ticket-unlocked #ticketContent { filter: none !important; }
+        .ticket-unlocked #lockOverlay { display: none !important; }
+    </style>
 </head>
 <body>
     <div class="ticket-card">
-        <!-- Content Wrapper that will be blurred -->
+        <!-- Content Wrapper -->
         <div id="ticketContent" style="filter: blur(10px); transition: filter 0.5s ease;">
+            <!-- ... existing content ... -->
             <div class="ticket-label">Official Entry Ticket</div>
             
             <h1 class="guest-name">@Model.Name</h1>
@@ -166,28 +196,36 @@
         </div>
     </div>
     <script>
+        // Post-load script to handle button click and fallback check
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if already unlocked
-            const isUnlocked = localStorage.getItem('ticketUnlocked_' + '@Model.TicketToken');
-            
-            if (isUnlocked === 'true') {
-                // Immediately show content
-                document.getElementById('ticketContent').style.filter = 'none';
-                document.getElementById('lockOverlay').style.display = 'none';
+            if (window.isTicketUnlocked) {
+                 document.getElementById('ticketContent').style.filter = 'none';
+                 document.getElementById('lockOverlay').style.display = 'none';
             }
         });
 
         document.getElementById('unlockBtn').addEventListener('click', function() {
-            // Save state
-            localStorage.setItem('ticketUnlocked_' + '@Model.TicketToken', 'true');
+            try {
+                var token = '@Model.TicketToken';
+                var key = 'ticketUnlocked_' + token;
+                
+                // Save to LocalStorage
+                localStorage.setItem(key, 'true');
+                
+                // Save to Cookie (1 year)
+                document.cookie = key + "=true; path=/; max-age=31536000";
+            } catch(e) {
+                console.error("Storage save error:", e);
+            }
 
-            // Wait a moment for them to create the "follow" intent (or just open the tab)
+            // UI Feedback
+            var btn = this;
+            btn.innerHTML = '<i class="fas fa-check me-2"></i>Unlocking...';
+            
             setTimeout(function() {
-                // Remove blur
                 document.getElementById('ticketContent').style.filter = 'none';
-                // Hide overlay
                 document.getElementById('lockOverlay').style.display = 'none';
-            }, 2000); // 2 second delay to simulate "checking"
+            }, 1000); 
         });
     </script>
 </body>
