@@ -199,6 +199,95 @@ namespace VivuqeQRSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST: Events/ClearData/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ClearData(int id)
+        {
+            var @event = await _context.Events
+                .Include(e => e.Seniors)
+                .ThenInclude(s => s.Guests)
+                .FirstOrDefaultAsync(e => e.EventId == id);
+
+            if (@event == null) return NotFound();
+
+            // Delete guests first
+            foreach (var senior in @event.Seniors)
+            {
+                _context.Guests.RemoveRange(senior.Guests);
+            }
+            
+            // Delete seniors
+            _context.Seniors.RemoveRange(@event.Seniors);
+            
+            await _context.SaveChangesAsync();
+            await _auditService.LogAsync("Delete", "EventData", id.ToString(), "Cleared all seniors and guests from event");
+
+            TempData["SuccessMessage"] = "Event data cleared successfully. You can now re-import.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // GET: Events/Rollback/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Rollback(int id)
+        {
+            var @event = await _context.Events
+                .Include(e => e.Seniors)
+                .ThenInclude(s => s.Guests)
+                .FirstOrDefaultAsync(e => e.EventId == id);
+
+            if (@event == null) return NotFound();
+
+            // Order by SeniorId DESC (Newest First)
+            var viewModel = new RollbackViewModel
+            {
+                EventId = @event.EventId,
+                EventName = @event.Name,
+                Seniors = @event.Seniors.OrderByDescending(s => s.SeniorId).Select(s => new SeniorRollbackItem
+                {
+                    SeniorId = s.SeniorId,
+                    Name = s.Name,
+                    PhoneNumber = s.PhoneNumber,
+                    GuestsCount = s.Guests.Count,
+                    IsSelected = false
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: Events/Rollback
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RollbackConfirmed(RollbackViewModel model)
+        {
+            var selectedIds = model.Seniors.Where(s => s.IsSelected).Select(s => s.SeniorId).ToList();
+
+            if (selectedIds.Any())
+            {
+                var seniorsToDelete = await _context.Seniors
+                    .Include(s => s.Guests)
+                    .Where(s => selectedIds.Contains(s.SeniorId))
+                    .ToListAsync();
+
+                // Delete associated guests first
+                foreach (var senior in seniorsToDelete)
+                {
+                    _context.Guests.RemoveRange(senior.Guests);
+                }
+
+                _context.Seniors.RemoveRange(seniorsToDelete);
+                await _context.SaveChangesAsync();
+                
+                await _auditService.LogAsync("Delete", "BatchRollback", model.EventId.ToString(), $"Deleted {selectedIds.Count} seniors via rollback");
+                TempData["SuccessMessage"] = $"Successfully deleted {selectedIds.Count} seniors.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id = model.EventId });
+        }
+
         private bool EventExists(int id)
         {
             return _context.Events.Any(e => e.EventId == id);
@@ -259,7 +348,7 @@ namespace VivuqeQRSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> TicketSettings(int id, [Bind("EventId,TicketTitle,TicketDateDisplay,TicketLocationDisplay,TicketMapUrl,TicketTimeDisplay,TicketWelcomeMessage")] Event eventSettings)
+        public async Task<IActionResult> TicketSettings(int id, [Bind("EventId,TicketTitle,TicketDateDisplay,TicketLocationDisplay,TicketMapUrl")] Event eventSettings)
         {
             if (id != eventSettings.EventId) return NotFound();
 
@@ -442,5 +531,21 @@ namespace VivuqeQRSystem.Controllers
             // Basic cleanup if needed, but keeping original formatting is safer for now
             return phone;
         }
+    }
+
+    public class RollbackViewModel
+    {
+        public int EventId { get; set; }
+        public string EventName { get; set; }
+        public List<SeniorRollbackItem> Seniors { get; set; } = new List<SeniorRollbackItem>();
+    }
+
+    public class SeniorRollbackItem
+    {
+        public int SeniorId { get; set; }
+        public string Name { get; set; }
+        public string? PhoneNumber { get; set; }
+        public int GuestsCount { get; set; }
+        public bool IsSelected { get; set; }
     }
 }

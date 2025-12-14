@@ -73,6 +73,28 @@
     }
 </div>
 
+@if (User.IsInRole("Admin"))
+{
+    <div class="card vivuqe-card border-danger mt-4">
+        <div class="card-header border-danger">
+            <h5 class="text-danger mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-white-50">Mistake in import? You can clear all seniors and guests to start over (Re-import).</p>
+            <div class="d-flex gap-2">
+                <a asp-action="Rollback" asp-route-id="@Model.EventId" class="btn btn-outline-warning">
+                    <i class="fas fa-undo me-2"></i>Selective Undo (Remove Recent)
+                </a>
+                <form asp-action="ClearData" asp-route-id="@Model.EventId" method="post" onsubmit="return confirm('ARE YOU SURE? This will delete ALL seniors and guests in this event. This cannot be undone.');">
+                    <button type="submit" class="btn btn-outline-danger">
+                        <i class="fas fa-trash-alt me-2"></i>Clear ALL Data
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
 @if (!Model.Seniors.Any())
 {
     <div class="text-center py-5">

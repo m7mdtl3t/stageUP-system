@@ -1,0 +1,104 @@
+@model VivuqeQRSystem.Controllers.RollbackViewModel
+
+@{
+    ViewData["Title"] = "Undo Import - " + Model.EventName;
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card vivuqe-card border-warning">
+            <div class="card-header border-warning bg-warning bg-opacity-10">
+                <h4 class="mb-0 text-warning">
+                    <i class="fas fa-undo me-2"></i>Undo Import / Remove Recent Seniors
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>How to use:</strong> The list below is sorted by <strong>Newest First</strong>. 
+                    Select the seniors you want to remove (e.g., the duplicates from the last import) and click "Delete Selected".
+                </div>
+
+                <form asp-action="RollbackConfirmed" method="post" id="rollbackForm">
+                    <input type="hidden" asp-for="EventId" />
+                    <input type="hidden" asp-for="EventName" />
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-light btn-sm" onclick="selectTop(10)">Select Top 10</button>
+                            <button type="button" class="btn btn-outline-light btn-sm" onclick="selectTop(50)">Select Top 50</button>
+                            <button type="button" class="btn btn-outline-light btn-sm" onclick="selectTop(60)">Select Top 60</button>
+                            <button type="button" class="btn btn-outline-light btn-sm" onclick="selectTop(100)">Select Top 100</button>
+                        </div>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete these seniors?');">
+                            <i class="fas fa-trash-alt me-2"></i>Delete Selected
+                        </button>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">
+                                        <input type="checkbox" class="form-check-input" id="selectAll" onclick="toggleAll(this)" />
+                                    </th>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Guests Linked</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Seniors.Count; i++)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" asp-for="Seniors[i].SeniorId" />
+                                            <input type="hidden" asp-for="Seniors[i].Name" />
+                                            <input type="checkbox" asp-for="Seniors[i].IsSelected" class="form-check-input senior-check" />
+                                        </td>
+                                        <td>@Model.Seniors[i].SeniorId</td>
+                                        <td class="fw-bold text-white">@Model.Seniors[i].Name</td>
+                                        <td class="text-white-50">@Model.Seniors[i].PhoneNumber</td>
+                                        <td>
+                                            <span class="badge bg-secondary">@Model.Seniors[i].GuestsCount Guests</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-1"></i>Cancel & Back to Event
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleAll(source) {
+            checkboxes = document.getElementsByClassName('senior-check');
+            for(var i=0, n=checkboxes.length;i<n;i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+
+        function selectTop(n) {
+            checkboxes = document.getElementsByClassName('senior-check');
+            // Uncheck all first
+            for(var i=0; i<checkboxes.length; i++) {
+                checkboxes[i].checked = false;
+            }
+            // Check top N
+            for(var i=0; i<n && i<checkboxes.length; i++) {
+                checkboxes[i].checked = true;
+            }
+        }
+    </script>
+}
