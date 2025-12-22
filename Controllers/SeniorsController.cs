@@ -186,11 +186,6 @@ namespace VivuqeQRSystem.Controllers
                     return RedirectToAction(nameof(Details), new { id = guest.SeniorId });
                 }
                 
-                if (evt.Date.Date != DateTime.Today)
-                {
-                    TempData["Error"] = $"❌ Check-in BLOCKED: Event date is {evt.Date:yyyy-MM-dd} (Not Today).";
-                    return RedirectToAction(nameof(Details), new { id = guest.SeniorId });
-                }
             }
 
             guest.IsAttended = true;
