@@ -28,6 +28,15 @@
         </div>
     }
     
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="col-12">
+            <div class="alert alert-success bg-success text-white border-0 shadow-lg">
+                <i class="fas fa-check-circle fa-lg me-2"></i>@TempData["SuccessMessage"]
+            </div>
+        </div>
+    }
+
     <div class="col-12 col-lg-4">
         <div class="card vivuqe-card">
             <div class="card-body text-center">
@@ -286,33 +295,27 @@
                         guestRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 300);
                     
-                    // 3. Auto-Mark Attendance (ONLY if autoMark=true is present)
+                    // 3. Double-Scan Alert (Logic moved to server for mark, but check here for alert)
                     const autoMark = urlParams.get('autoMark');
-                    const markForm = guestRow.querySelector('form[action$="MarkAttendance"]');
-                    
-                    // Check if already attended (look for the green badge or data attribute)
                     const isAlreadyAttended = guestRow.querySelector('.badge.bg-success') !== null;
                     const attendedTime = guestRow.querySelector('td:nth-child(4)')?.innerText.trim();
 
-                    if (isAlreadyAttended && autoMark === 'true') {
-                        // ALREADY SCANNED! Show Error
+                    // If it was ALREADY attended BEFORE this request hit the server (or if it's still being shown as such)
+                    // Note: Since server marks it before rendering, 'isAlreadyAttended' will be true.
+                    // We need to know if it was marked *just now* or *previously*.
+                    // Actually, let's just show the alert if it's attended and there's no success message.
+                    const hasSuccess = document.querySelector('.alert-success') !== null;
+
+                    if (isAlreadyAttended && autoMark === 'true' && !hasSuccess) {
+                        // ALREADY SCANNED PREVIOUSLY! Show Error
                         alert(`⚠️ STOP! ALREADY SCANNED!\n\nThis guest entered at: ${attendedTime}\n\nDO NOT ENTER AGAIN.`);
                         guestRow.style.backgroundColor = '#ffcccc'; // Red highlight
                         guestRow.style.border = '2px solid red';
                     }
-                    else if (markForm && autoMark === 'true') {
-                        // Not attended yet -> Auto Mark
-                        // Optional: Confirm before auto-marking or just do it?
-                        // Let's do it immediately for speed, maybe add a visual indicator
-                        console.log("Auto-marking attendance for guest " + highlightGuestId);
-                        
-                        // Submit the form
-                        markForm.submit();
-                    }
 
-                    // Remove highlight after 5 seconds (only if page doesn't reload, but form submit reloads usually)
+                    // Remove highlight after 5 seconds
                     setTimeout(() => {
-                        if(!isAlreadyAttended) guestRow.classList.remove('guest-highlight');
+                        guestRow.classList.remove('guest-highlight');
                     }, 5000);
                 }
             }

@@ -116,10 +116,11 @@ namespace VivuqeQRSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int id, int? highlightGuest = null, bool autoMark = false)
         {
             var senior = await _context.Seniors
                 .Include(s => s.Guests)
+                .Include(s => s.Event)
                 .FirstOrDefaultAsync(s => s.SeniorId == id);
             
             if (senior == null) return NotFound();
@@ -132,6 +133,38 @@ namespace VivuqeQRSystem.Controllers
                 if (user == null || user.AssignedEventId != senior.EventId)
                 {
                     return Forbid();
+                }
+            }
+
+            // AUTO-MARK LOGIC (Fixes the QR Download Bug)
+            if (autoMark && highlightGuest.HasValue)
+            {
+                var guest = senior.Guests.FirstOrDefault(g => g.GuestId == highlightGuest.Value);
+                if (guest != null && !guest.IsAttended)
+                {
+                    // Check Event Active Status
+                    if (senior.Event != null && !senior.Event.IsActive)
+                    {
+                        TempData["Error"] = "❌ Check-in BLOCKED: Event is Inactive.";
+                    }
+                    else
+                    {
+                        // Mark Attended
+                        guest.IsAttended = true;
+                        guest.AttendanceTime = DateTime.UtcNow;
+                        await _context.SaveChangesAsync();
+                        await _auditService.LogAsync("AutoMark", "Guest", guest.GuestId.ToString(), $"Auto-marked attendance via QR for '{guest.Name}'");
+
+                        // SignalR Update
+                        var eventId = senior.EventId ?? 0;
+                        var currentCount = await _context.Guests.Where(g => g.Senior.EventId == eventId && g.IsAttended).CountAsync();
+                        var eventName = senior.Event?.Name ?? "Event";
+                        
+                        await _hubContext.Clients.Group(eventId.ToString()).SendAsync("ReceiveAttendanceUpdate", currentCount, eventId, guest.Name, "Just now", eventName);
+                        await _hubContext.Clients.Group("GlobalMonitor").SendAsync("ReceiveAttendanceUpdate", currentCount, eventId, guest.Name, "Just now", eventName);
+                        
+                        TempData["SuccessMessage"] = $"✅ Welcome, {guest.Name}! Attendance marked.";
+                    }
                 }
             }
 
