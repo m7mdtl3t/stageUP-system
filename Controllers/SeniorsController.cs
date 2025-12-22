@@ -176,6 +176,23 @@ namespace VivuqeQRSystem.Controllers
 
             if (guest == null) return NotFound();
 
+            // LOGIC CHECK: Ensure Event is Active & Today
+            var evt = guest.Senior?.Event;
+            if (evt != null)
+            {
+                if (!evt.IsActive)
+                {
+                    TempData["Error"] = "❌ Check-in BLOCKED: Event is Inactive.";
+                    return RedirectToAction(nameof(Details), new { id = guest.SeniorId });
+                }
+                
+                if (evt.Date.Date != DateTime.Today)
+                {
+                    TempData["Error"] = $"❌ Check-in BLOCKED: Event date is {evt.Date:yyyy-MM-dd} (Not Today).";
+                    return RedirectToAction(nameof(Details), new { id = guest.SeniorId });
+                }
+            }
+
             guest.IsAttended = true;
             guest.AttendanceTime = DateTime.UtcNow;
             await _context.SaveChangesAsync();
@@ -224,8 +241,34 @@ namespace VivuqeQRSystem.Controllers
             await _context.SaveChangesAsync();
             await _auditService.LogAsync("Unmark", "Guest", guest.GuestId.ToString(), $"Unmarked attendance for guest '{guest.Name}' (Senior ID: {guest.SeniorId})");
 
-            var seniorId = guest.SeniorId;
-            return RedirectToAction(nameof(Details), new { id = seniorId });
+            // Real-time Update (Decrement Count)
+            var senior = await _context.Seniors.Include(s => s.Event).FirstOrDefaultAsync(s => s.SeniorId == guest.SeniorId);
+            if (senior != null)
+            {
+                var eventId = senior.EventId ?? 0;
+                var currentCount = await _context.Guests
+                    .Where(g => g.Senior.EventId == eventId && g.IsAttended)
+                    .CountAsync();
+                
+                var eventName = senior.Event?.Name ?? "Unknown Event";
+
+                // Broadcast
+                await _hubContext.Clients.Group(eventId.ToString()).SendAsync("ReceiveAttendanceUpdate", 
+                    currentCount, 
+                    eventId, 
+                    guest.Name, 
+                    "UNMARKED", // Special flag or just ignored by UI for table, but updates counter
+                    eventName);
+
+                await _hubContext.Clients.Group("GlobalMonitor").SendAsync("ReceiveAttendanceUpdate", 
+                    currentCount, 
+                    eventId, 
+                    guest.Name, 
+                    "UNMARKED", 
+                    eventName);
+            }
+
+            return RedirectToAction(nameof(Details), new { id = guest.SeniorId });
         }
 
         [HttpPost]

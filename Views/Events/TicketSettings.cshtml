@@ -42,9 +42,24 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="TicketWelcomeMessage" class="form-label text-white-50">Welcome Message (WhatsApp Intro)</label>
-                            <input asp-for="TicketWelcomeMessage" class="form-control" placeholder="e.g. You’re exclusively invited to... (Leave empty for default)" />
-                            <span asp-validation-for="TicketWelcomeMessage" class="text-danger small"></span>
+                            <label asp-for="TicketVisualMessage" class="form-label text-white-50">Visual Message on Ticket Card</label>
+                            <textarea asp-for="TicketVisualMessage" class="form-control" rows="2" placeholder="e.g. ننتظركم بكل حب في ليلتنا المميزة"></textarea>
+                            <div class="form-text text-white-50 small">Appears directly on the visual ticket webpage.</div>
+                            <span asp-validation-for="TicketVisualMessage" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="WhatsAppMessage" class="form-label text-white-50">WhatsApp Message Template</label>
+                            <textarea asp-for="WhatsAppMessage" class="form-control" rows="3" placeholder="e.g. You’re exclusively invited to..."></textarea>
+                            <div class="form-text text-white-50 small">The starting text for the WhatsApp message sent to guests.</div>
+                            <span asp-validation-for="WhatsAppMessage" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="LinkDescription" class="form-label text-white-50">Link Preview Description</label>
+                            <input asp-for="LinkDescription" class="form-control" placeholder="Brief text shown when the link is shared" />
+                            <div class="form-text text-white-50 small">Appears under the link title in social previews (WhatsApp/Facebook).</div>
+                            <span asp-validation-for="LinkDescription" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">

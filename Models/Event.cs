@@ -44,9 +44,21 @@ namespace VivuqeQRSystem.Models
         [StringLength(50)]
         public string? TicketTimeDisplay { get; set; } // e.g. "6:00 PM (Doors close 9:00 PM)"
 
-        [Display(Name = "Welcome Message")]
+        [Display(Name = "Visual Message on Ticket")]
         [StringLength(200)]
-        public string? TicketWelcomeMessage { get; set; } // e.g. "You’re exclusively invited to..."
+        public string? TicketVisualMessage { get; set; } // e.g. "Doors Open 9PM"
+
+        [Display(Name = "WhatsApp Template")]
+        [StringLength(500)]
+        public string? WhatsAppMessage { get; set; } // e.g. "Hi {GuestName}..."
+
+        [Display(Name = "Link Preview Description")]
+        [StringLength(200)]
+        public string? LinkDescription { get; set; } // OG:Description
+
+        [Display(Name = "Welcome Message (Legacy)")]
+        [StringLength(200)]
+        public string? TicketWelcomeMessage { get; set; } // Kept for backward compat, or repurposed
 
         // Branding Settings
         [Display(Name = "Primary Color")]

@@ -13,6 +13,8 @@
     var primaryColor = Model.Senior?.Event?.PrimaryColor ?? "#ff00cc";
     var secondaryColor = Model.Senior?.Event?.SecondaryColor ?? "#333399";
     var logoUrl = Model.Senior?.Event?.LogoPath;
+    var visualMsg = Model.Senior?.Event?.TicketVisualMessage;
+    var linkDesc = Model.Senior?.Event?.LinkDescription ?? "Official Digital Entry Ticket";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -20,6 +22,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Your Ticket - @Model.Name</title>
+    
+    <!-- Meta Tags for Link Preview -->
+    <meta property="og:title" content="Your Invitation - @Model.Name" />
+    <meta property="og:description" content="@linkDesc" />
+    @if (!string.IsNullOrEmpty(logoUrl)) {
+        <meta property="og:image" content="@logoUrl" />
+    }
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -161,11 +171,15 @@
                  <img src="@logoUrl" alt="Event Logo" class="mb-4" style="max-height: 80px; max-width: 180px;">
             }
             
-            <div class="ticket-label">Official Entry Ticket</div>
+            <div class="ticket-label">@(!string.IsNullOrEmpty(visualMsg) ? visualMsg : "Official Entry Ticket")</div>
             
             <h1 class="guest-name">@Model.Name</h1>
             <div class="event-details">
                 <span><i class="fas fa-calendar-alt me-1"></i> @date</span>
+                @if (!string.IsNullOrEmpty(Model.Senior?.Event?.TicketTimeDisplay))
+                {
+                    <span><i class="fas fa-clock me-1"></i> @Model.Senior?.Event?.TicketTimeDisplay</span>
+                }
                 <a href="@mapLink" target="_blank" style="color: rgba(255,255,255,0.7); text-decoration: none; border-bottom: 1px dotted rgba(255,255,255,0.5);">
                     <i class="fas fa-map-marker-alt me-1"></i> @location
                 </a>
@@ -192,7 +206,7 @@
 <div class="logo-text">
                 <div style="margin-bottom: 5px; font-weight: 700; color: #ffffff; font-size: 0.9rem; opacity: 0.7;">Developed By Muhamed Talaat</div>
                 <div style="font-size: 0.65rem; opacity: 0.6;">Powered by StageUP</div>
-            </div>c
+            </div>
         </div>
 
         <!-- Social Lock Overlay -->

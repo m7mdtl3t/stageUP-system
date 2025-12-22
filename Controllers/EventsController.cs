@@ -421,27 +421,29 @@ namespace VivuqeQRSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> TicketSettings(int id, [Bind("EventId,TicketTitle,TicketDateDisplay,TicketLocationDisplay,TicketMapUrl")] Event eventSettings)
+        public async Task<IActionResult> TicketSettings(int id, [Bind("EventId,TicketTitle,TicketDateDisplay,TicketLocationDisplay,TicketTimeDisplay,TicketMapUrl,TicketVisualMessage,WhatsAppMessage,LinkDescription")] Event eventSettings)
         {
             if (id != eventSettings.EventId) return NotFound();
 
             var eventToUpdate = await _context.Events.FindAsync(id);
             if (eventToUpdate == null) return NotFound();
 
-            // validation workaround: we don't bind Name/Date so they will be invalid
+            // validation workaround
             ModelState.Remove("Name");
             ModelState.Remove("Date");
-            ModelState.Remove("Location"); // Optional but safer to remove if checked
+            ModelState.Remove("Location");
 
             if (ModelState.IsValid)
             {
-                // Only update ticket properties
+                // Sync all fields
                 eventToUpdate.TicketTitle = eventSettings.TicketTitle;
                 eventToUpdate.TicketDateDisplay = eventSettings.TicketDateDisplay;
                 eventToUpdate.TicketLocationDisplay = eventSettings.TicketLocationDisplay;
-                eventToUpdate.TicketMapUrl = eventSettings.TicketMapUrl;
                 eventToUpdate.TicketTimeDisplay = eventSettings.TicketTimeDisplay;
-                eventToUpdate.TicketWelcomeMessage = eventSettings.TicketWelcomeMessage;
+                eventToUpdate.TicketMapUrl = eventSettings.TicketMapUrl;
+                eventToUpdate.TicketVisualMessage = eventSettings.TicketVisualMessage;
+                eventToUpdate.WhatsAppMessage = eventSettings.WhatsAppMessage;
+                eventToUpdate.LinkDescription = eventSettings.LinkDescription;
 
                 try
                 {

@@ -19,6 +19,15 @@
         </div>
     }
     
+    @if (TempData["Error"] != null)
+    {
+        <div class="col-12">
+            <div class="alert alert-danger bg-danger text-white border-0 shadow-lg">
+                <i class="fas fa-ban fa-lg me-2"></i><strong>STOP!</strong> @TempData["Error"]
+            </div>
+        </div>
+    }
+    
     <div class="col-12 col-lg-4">
         <div class="card vivuqe-card">
             <div class="card-body text-center">
