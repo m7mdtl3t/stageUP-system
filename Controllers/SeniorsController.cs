@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.Authorization;
 
 using VivuqeQRSystem.Services;
 
+using VivuqeQRSystem.Services;
+using Microsoft.AspNetCore.SignalR;
+using VivuqeQRSystem.Hubs;
+
 namespace VivuqeQRSystem.Controllers
 {
     [Authorize]
@@ -16,12 +20,14 @@ namespace VivuqeQRSystem.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IAuditService _auditService;
+        private readonly IHubContext<AttendanceHub> _hubContext;
 
-        public SeniorsController(ApplicationDbContext context, IConfiguration configuration, IAuditService auditService)
+        public SeniorsController(ApplicationDbContext context, IConfiguration configuration, IAuditService auditService, IHubContext<AttendanceHub> hubContext)
         {
             _context = context;
             _configuration = configuration;
             _auditService = auditService;
+            _hubContext = hubContext;
         }
 
         [Authorize(Roles = "Admin")]
@@ -163,13 +169,43 @@ namespace VivuqeQRSystem.Controllers
         [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> MarkAttendance(int guestId)
         {
-            var guest = await _context.Guests.FindAsync(guestId);
+            var guest = await _context.Guests
+                .Include(g => g.Senior)
+                .ThenInclude(s => s.Event)
+                .FirstOrDefaultAsync(g => g.GuestId == guestId);
+
             if (guest == null) return NotFound();
 
             guest.IsAttended = true;
             guest.AttendanceTime = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             await _auditService.LogAsync("Mark", "Guest", guest.GuestId.ToString(), $"Marked attendance for guest '{guest.Name}' (Senior ID: {guest.SeniorId})");
+
+            // Real-time Update
+            if (guest.Senior != null)
+            {
+                var eventId = guest.Senior.EventId ?? 0;
+                var currentCount = await _context.Guests
+                    .Where(g => g.Senior.EventId == eventId && g.IsAttended)
+                    .CountAsync();
+                
+                var eventName = guest.Senior.Event?.Name ?? "Unknown Event";
+
+                await _hubContext.Clients.Group(eventId.ToString()).SendAsync("ReceiveAttendanceUpdate", 
+                    currentCount, 
+                    eventId, 
+                    guest.Name, 
+                    "Just now", 
+                    eventName);
+
+                // Broadcast to Global Admin Listeners
+                await _hubContext.Clients.Group("GlobalMonitor").SendAsync("ReceiveAttendanceUpdate", 
+                    currentCount, 
+                    eventId, 
+                    guest.Name, 
+                    "Just now", 
+                    eventName);
+            }
 
             var seniorId = guest.SeniorId;
             return RedirectToAction(nameof(Details), new { id = seniorId });

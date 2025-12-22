@@ -502,8 +502,48 @@ namespace VivuqeQRSystem.Controllers
 
             try
             {
-                using var stream = file.OpenReadStream();
-                using var reader = ExcelDataReader.ExcelReaderFactory.CreateReader(stream);
+                // 1. SIMPLE CSV MODE (Matches the template)
+                if (file.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+                {
+                    using var sreader = new StreamReader(file.OpenReadStream());
+                    var header = await sreader.ReadLineAsync(); // Skip header
+                    
+                    while (!sreader.EndOfStream)
+                    {
+                        var line = await sreader.ReadLineAsync();
+                        if (string.IsNullOrWhiteSpace(line)) continue;
+                        
+                        // Parse CSV (Simple split, assumes no commas in names for now or standard quote handling needed for better robust csv)
+                        // For simple Names/Phones, split is likely fine.
+                        var parts = line.Split(',');
+                        if (parts.Length < 1) continue;
+                        
+                        var name = parts[0].Trim();
+                        // Handle potential quotes
+                        name = name.Replace("\"", "");
+                        
+                        var phone = parts.Length > 1 ? parts[1].Trim() : null;
+
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                             var senior = new Senior 
+                             { 
+                                 Name = name, 
+                                 PhoneNumber = formatPhone(phone), 
+                                 EventId = eventId, 
+                                 NumberOfGuests = 0 
+                             };
+                             _context.Seniors.Add(senior);
+                             seniorsCount++;
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+                }
+                // 2. ADVANCED EXCEL MODE (2 Sheets)
+                else
+                {
+                    using var stream = file.OpenReadStream();
+                    using var reader = ExcelDataReader.ExcelReaderFactory.CreateReader(stream);
                 var result = reader.AsDataSet();
 
                 if (result.Tables.Count < 2)
@@ -579,7 +619,8 @@ namespace VivuqeQRSystem.Controllers
                     }
                 }
 
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); // Save remaining changes in Excel logic if any (though loop saves often)
+                } // End Excel Mode Logic
 
                 await _auditService.LogAsync("Import", "Seniors/Guests", eventId.ToString(), $"Imported {seniorsCount} seniors and {guestsCount} guests into Event ID {eventId}");
                 

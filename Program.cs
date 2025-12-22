@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<VivuqeQRSystem.Services.IAuditService, VivuqeQRSystem.Services.AuditService>();
     
@@ -129,6 +130,8 @@ app.MapControllerRoute(
     name: "sasfunday",
     pattern: "25JunSchoolFunDay",
     defaults: new { controller = "Invitations", action = "SasFunDay" });
+
+app.MapHub<VivuqeQRSystem.Hubs.AttendanceHub>("/attendanceHub");
 
 app.MapControllerRoute(
     name: "default",

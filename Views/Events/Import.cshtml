@@ -29,15 +29,33 @@
                 }
 
                 <div class="alert alert-info mb-4">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-info-circle fa-2x me-3"></i>
-                        <h6 class="alert-heading fw-bold mb-0">Excel Format Requirements</h6>
+                    <h6 class="alert-heading fw-bold mb-3"><i class="fas fa-file-import me-2"></i>Choose Import Format</h6>
+                    
+                    <div class="row g-3">
+                        <!-- Option 1: Simple CSV -->
+                        <div class="col-md-6 border-end border-secondary">
+                            <h6 class="text-success"><i class="fas fa-check-circle me-1"></i>Simple (Recommended)</h6>
+                            <p class="small text-white-50 mb-2">Best for quick imports. Use the template provided.</p>
+                            <ul class="small mb-2 ps-3">
+                                <li>File type: <code>.csv</code></li>
+                                <li>Columns: <code>Name</code>, <code>PhoneNumber</code></li>
+                            </ul>
+                            <a href="@Url.Action("DownloadTemplate")" class="btn btn-sm btn-outline-light mt-1">
+                                <i class="fas fa-download me-1"></i>Download CSV Template
+                            </a>
+                        </div>
+                        
+                        <!-- Option 2: Advanced Excel -->
+                        <div class="col-md-6 ps-md-4">
+                            <h6 class="text-primary"><i class="fas fa-database me-1"></i>Advanced (Excel)</h6>
+                            <p class="small text-white-50 mb-2">For importing complex data with linked guests.</p>
+                            <ul class="small mb-0 ps-3">
+                                <li>File type: <code>.xlsx</code></li>
+                                <li><strong>Sheet 1:</strong> Seniors (ID, Name, Phone)</li>
+                                <li><strong>Sheet 2:</strong> Guests (ID, Name, Phone, SeniorID)</li>
+                            </ul>
+                        </div>
                     </div>
-                    <p class="small mb-2">Please ensure your Excel file (.xlsx) has <strong>2 Sheets</strong>:</p>
-                    <ul class="small mb-0">
-                        <li><strong>Sheet 1 (Seniors):</strong> Columns: <code>Senior_ID</code>, <code>Senior_Name</code>, <code>Senior_Phone</code></li>
-                        <li><strong>Sheet 2 (Guests):</strong> Columns: <code>Guest_ID</code>, <code>Guest_Name</code>, <code>Guest_Phone</code>, <code>Senior_ID</code> (to link)</li>
-                    </ul>
                 </div>
 
                 <form asp-action="Import" method="post" enctype="multipart/form-data" class="needs-validation">

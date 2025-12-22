@@ -96,7 +96,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <div class="text-white-50 small">Attended</div>
-                            <div class="h4 text-white mb-0">@Model.TotalAttended</div>
+                            <div class="h4 text-white mb-0" id="totalAttendedCounter">@Model.TotalAttended</div>
                             <small class="text-success">@Model.AttendanceRate% Rate</small>
                         </div>
                     </div>
@@ -231,7 +231,7 @@
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="recentActivityTableBody">
                                 @if (Model.RecentActivity.Any())
                                 {
                                     @foreach (var activity in Model.RecentActivity)
@@ -399,5 +399,104 @@
     
     canvas {
         max-height: 350px;
+    }
+</style>
+</style>
+
+<!-- Real-time Updates & UX -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // SignalR Connection
+    var connection = new signalR.HubConnectionBuilder().withUrl("/attendanceHub").build();
+
+    connection.on("ReceiveAttendanceUpdate", function (count, eventId, guestName, timeAgo, eventName) {
+        // 1. Toast Notification
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          background: '#1a1d20',
+          color: '#fff',
+          iconColor: '#28a745',
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        });
+
+        Toast.fire({
+          icon: 'success',
+          title: 'Guest Check-in!',
+          text: `${guestName} just arrived at ${eventName}`
+        });
+
+        // 2. Update Dashboard UI (Counter & Table)
+        const currentEventFilter = '@Model.SelectedEvent?.EventId';
+        
+        // Only update if viewing All Events OR the specific event
+        if (currentEventFilter === '' || currentEventFilter == eventId) {
+             // Update Counter
+             const counter = document.getElementById("totalAttendedCounter");
+             if(counter) {
+                 // Animate count change
+                 counter.style.transition = "color 0.3s";
+                 counter.style.color = "#28a745"; // flash green
+                 counter.innerText = count;
+                 setTimeout(() => counter.style.color = "white", 500);
+             }
+             
+             // Update Recent Activity Table
+             const tbody = document.getElementById("recentActivityTableBody");
+             if(tbody) {
+                 // Remove "No data" row if exists
+                 const noDataRow = tbody.querySelector('td[colspan="5"]');
+                 if(noDataRow) noDataRow.parentElement.remove(); 
+
+                 const row = document.createElement("tr");
+                 row.classList.add("new-row-flash"); // Animation class
+                 row.innerHTML = `
+                    <td>
+                        <i class="fas fa-user me-2 text-info"></i>
+                        ${guestName}
+                    </td>
+                    <td>
+                         <i class="fas fa-user-graduate me-2 text-primary"></i>
+                         (Live Scan)
+                    </td>
+                    <td>
+                        <i class="fas fa-calendar me-2 text-warning"></i>
+                        ${eventName}
+                    </td>
+                    <td>${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                    <td class="text-end"><span class="badge bg-success">Just now</span></td>
+                 `;
+                 
+                 tbody.prepend(row);
+                 
+                 // Limit rows to 20
+                 if(tbody.children.length > 20) tbody.lastElementChild.remove();
+             }
+        }
+    });
+
+    connection.start().then(function() {
+        const eventId = '@Model.SelectedEvent?.EventId';
+        const groupName = eventId ? eventId : "GlobalMonitor";
+        connection.invoke("JoinEventGroup", groupName).catch(err => console.error("Join Group Error: ", err));
+    }).catch(function (err) {
+        console.error(err.toString());
+    });
+</script>
+
+<style>
+    @@keyframes rowFlash {
+      0% { background-color: rgba(40, 167, 69, 0.4); }
+      100% { background-color: transparent; }
+    }
+    .new-row-flash {
+        animation: rowFlash 2s ease-out;
     }
 </style>
