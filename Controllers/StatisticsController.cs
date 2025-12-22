@@ -141,9 +141,9 @@ namespace VivuqeQRSystem.Controllers
                 .ToList();
 
             // 4. Daily Attendance (Based on Scope)
-            var thirtyDaysAgo = DateTime.Now.AddDays(-30);
+            var ninetyDaysAgo = DateTime.Now.AddDays(-90);
             viewModel.DailyAttendance = scopeAttendedGuests
-                .Where(g => g.AttendanceTime!.Value >= thirtyDaysAgo)
+                .Where(g => g.AttendanceTime!.Value >= ninetyDaysAgo)
                 .GroupBy(g => g.AttendanceTime!.Value.Date)
                 .Select(group => new DailyAttendanceData
                 {

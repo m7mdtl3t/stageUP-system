@@ -8,7 +8,7 @@
 /* Simple background */
 body {
   background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-  color: #F3F4F6;
+  color: #ffffff;
   min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -41,7 +41,7 @@ body {
   border-radius: 15px;
   background: rgba(30, 27, 75, 0.9);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  color: #E5E7EB;
+  color: #ffffff;
 }
 
 /* Badge styling */
@@ -154,10 +154,13 @@ body {
 }
 
 .table thead th {
-  color: #D1D5DB;
-  background: rgba(139, 92, 246, 0.2);
+  color: #ffffff;
+  background: rgba(139, 92, 246, 0.3);
   border: none;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
 }
 
 .table tbody tr {
@@ -171,9 +174,9 @@ body {
 /* Form styling */
 .form-control {
   background: rgba(30, 27, 75, 0.7);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.4);
   border-radius: 8px;
-  color: #E5E7EB;
+  color: #ffffff;
   padding: 0.5rem 0.75rem;
 }
 
@@ -548,7 +551,7 @@ h6 {
 .search-result-item {
   display: block;
   padding: 12px 15px;
-  color: #E5E7EB;
+  color: #ffffff;
   text-decoration: none;
   border-bottom: 1px solid rgba(139, 92, 246, 0.15);
   transition: all 0.2s ease;
@@ -598,7 +601,7 @@ h6 {
 
 .result-sub {
   font-size: 0.8rem;
-  color: #9CA3AF;
+  color: #D1D5DB;
 }
 
 /* Color Classes for Search Results */
@@ -736,7 +739,28 @@ h6 {
 }
 
 .stats-label {
-  font-size: 0.9rem;
-  color: #9CA3AF;
+  font-size: 0.95rem;
+  color: #E5E7EB;
   margin: 0.25rem 0 0.5rem 0;
+  font-weight: 500;
+}
+
+/* Global Overrides for Muted Text */
+.text-white-50 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.text-muted {
+  color: #D1D5DB !important;
+}
+
+.form-label,
+.form-text {
+  color: #E5E7EB !important;
+  font-weight: 500;
+}
+
+.small,
+.x-small {
+  color: #E5E7EB;
 }

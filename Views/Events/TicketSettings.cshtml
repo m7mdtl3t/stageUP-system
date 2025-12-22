@@ -4,15 +4,15 @@
     ViewData["Title"] = "Ticket Customization";
 }
 
-<div class="container py-4">
+<div class="container-fluid py-4">
     <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
+        <div class="col-12 col-xl-10">
             <div class="card vivuqe-card border-0 shadow-lg">
                 <div class="card-header bg-transparent border-bottom border-light border-opacity-10 p-4">
-                    <h4 class="mb-0 text-white">
-                        <i class="fas fa-ticket-alt me-2 text-warning"></i>Ticket Customization
+                    <h4 class="mb-0 text-white text-center">
+                        <i class="fas fa-magic me-2 text-warning"></i>Customize Event Experience
                     </h4>
-                    <p class="text-white-50 mb-0 mt-1">Customize how the digital ticket looks for guests.</p>
+                    <p class="text-white-50 mb-0 mt-1 text-center">Separate controls for your digital ticket and social messaging.</p>
                 </div>
                 <div class="card-body p-4">
                     
@@ -27,71 +27,92 @@
                     <form asp-action="TicketSettings">
                         <input type="hidden" asp-for="EventId" />
                         
-                        <!-- Preview Note -->
-                        <div class="alert alert-info d-flex align-items-start mb-4">
-                             <i class="fas fa-info-circle me-2 mt-1"></i>
-                             <div>
-                                 <small>These settings override the default Event Name, Date, and Location on the Digital Ticket page. Leave them empty to use the default values.</small>
-                             </div>
+                        <div class="row g-4">
+                            <!-- Box 1: Digital Ticket Appearance -->
+                            <div class="col-12 col-md-6">
+                                <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); height: 100%;">
+                                    <h5 class="text-warning mb-4"><i class="fas fa-ticket-alt me-2"></i>Digital Ticket Page</h5>
+                                    
+                                    <div class="alert alert-info border-0 py-2 small mb-4" style="background: rgba(13, 202, 240, 0.1);">
+                                        <i class="fas fa-info-circle me-2"></i>Overrides for the ticket webpage.
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="TicketTitle" class="form-label text-white-50 small">Title (Event Name Override)</label>
+                                        <input asp-for="TicketTitle" class="form-control" placeholder="e.g. SMS Fun Day" />
+                                        <span asp-validation-for="TicketTitle" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="TicketVisualMessage" class="form-label text-white-50 small">Visual Message on Ticket Card</label>
+                                        <textarea asp-for="TicketVisualMessage" class="form-control" rows="2" placeholder="e.g. ننتظركم بكل حب في..."></textarea>
+                                        <span asp-validation-for="TicketVisualMessage" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="TicketDateDisplay" class="form-label text-white-50 small">Date Text</label>
+                                        <input asp-for="TicketDateDisplay" class="form-control" placeholder="e.g. 14 Dec 2025" />
+                                        <span asp-validation-for="TicketDateDisplay" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="TicketLocationDisplay" class="form-label text-white-50 small">Location Name</label>
+                                        <input asp-for="TicketLocationDisplay" class="form-control" placeholder="e.g. Nile House" />
+                                        <span asp-validation-for="TicketLocationDisplay" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-0">
+                                        <label asp-for="TicketMapUrl" class="form-label text-white-50 small">Map Google Link</label>
+                                        <input asp-for="TicketMapUrl" class="form-control" placeholder="Paste full Maps link here" />
+                                        <span asp-validation-for="TicketMapUrl" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Box 2: WhatsApp & Social Sharing -->
+                            <div class="col-12 col-md-6">
+                                <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); height: 100%;">
+                                    <h5 class="text-success mb-4"><i class="fab fa-whatsapp me-2"></i>WhatsApp & Sharing</h5>
+
+                                    <div class="alert alert-info border-0 py-2 small mb-4" style="background: rgba(25, 135, 84, 0.1);">
+                                        <i class="fas fa-share-alt me-2"></i>Controls for the invite message and preview.
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="WhatsAppMessage" class="form-label text-white-50 small">Message Template</label>
+                                        <textarea asp-for="WhatsAppMessage" class="form-control" rows="4" placeholder="e.g. You’re exclusively invited to..."></textarea>
+                                        <div class="form-text text-white-50 x-small">The starting text for the WhatsApp invite.</div>
+                                        <span asp-validation-for="WhatsAppMessage" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label asp-for="LinkDescription" class="form-label text-white-50 small">Link Preview Description</label>
+                                        <input asp-for="LinkDescription" class="form-control" placeholder="Brief text for social previews" />
+                                        <div class="form-text text-white-50 x-small">Shown under the title in WhatsApp/FB boxes.</div>
+                                        <span asp-validation-for="LinkDescription" class="text-danger small"></span>
+                                    </div>
+
+                                    <hr class="border-light border-opacity-10" />
+                                    
+                                    <div class="mb-0 mt-3">
+                                        <label asp-for="TicketTimeDisplay" class="form-label text-white-50 small">Time Display (Both Channels)</label>
+                                        <input asp-for="TicketTimeDisplay" class="form-control border-success border-opacity-25" placeholder="e.g. 6:00 PM (Doors close 9:00 PM)" />
+                                        <div class="form-text text-white-50 x-small">Shared between the Ticket page and WhatsApp body.</div>
+                                        <span asp-validation-for="TicketTimeDisplay" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="TicketTitle" class="form-label text-white-50">Ticket Title (Event Name Override)</label>
-                            <input asp-for="TicketTitle" class="form-control" placeholder="e.g. SMS Fun Day (Leave empty to use '@Model.Name')" />
-                            <span asp-validation-for="TicketTitle" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="TicketVisualMessage" class="form-label text-white-50">Visual Message on Ticket Card</label>
-                            <textarea asp-for="TicketVisualMessage" class="form-control" rows="2" placeholder="e.g. ننتظركم بكل حب في ليلتنا المميزة"></textarea>
-                            <div class="form-text text-white-50 small">Appears directly on the visual ticket webpage.</div>
-                            <span asp-validation-for="TicketVisualMessage" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="WhatsAppMessage" class="form-label text-white-50">WhatsApp Message Template</label>
-                            <textarea asp-for="WhatsAppMessage" class="form-control" rows="3" placeholder="e.g. You’re exclusively invited to..."></textarea>
-                            <div class="form-text text-white-50 small">The starting text for the WhatsApp message sent to guests.</div>
-                            <span asp-validation-for="WhatsAppMessage" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="LinkDescription" class="form-label text-white-50">Link Preview Description</label>
-                            <input asp-for="LinkDescription" class="form-control" placeholder="Brief text shown when the link is shared" />
-                            <div class="form-text text-white-50 small">Appears under the link title in social previews (WhatsApp/Facebook).</div>
-                            <span asp-validation-for="LinkDescription" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="TicketDateDisplay" class="form-label text-white-50">Ticket Date Text</label>
-                            <input asp-for="TicketDateDisplay" class="form-control" placeholder="e.g. 14 Dec 2025 (Leave empty to use formatted date)" />
-                            <span asp-validation-for="TicketDateDisplay" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="TicketTimeDisplay" class="form-label text-white-50">Time Display (WhatsApp/Ticket)</label>
-                            <input asp-for="TicketTimeDisplay" class="form-control" placeholder="e.g. 6:00 PM (Doors close 9:00 PM)" />
-                            <span asp-validation-for="TicketTimeDisplay" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="TicketLocationDisplay" class="form-label text-white-50">Ticket Location Text</label>
-                            <input asp-for="TicketLocationDisplay" class="form-control" placeholder="e.g. Nile House (Leave empty to use '@Model.Location')" />
-                            <span asp-validation-for="TicketLocationDisplay" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="TicketMapUrl" class="form-label text-white-50">Map Link (Optional)</label>
-                            <input asp-for="TicketMapUrl" class="form-control" placeholder="Paste full Google Maps link here" />
-                            <div class="form-text text-white-50 small">If empty, a smart search link will be generated based on the location name.</div>
-                            <span asp-validation-for="TicketMapUrl" class="text-danger small"></span>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-warning btn-lg fw-bold">
-                                <i class="fas fa-save me-2"></i>Save Ticket Settings
-                            </button>
-                            <a asp-action="Index" class="btn btn-outline-light">Back to Dashboard</a>
+                        <div class="row mt-5">
+                            <div class="col-12 text-center">
+                                <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+                                    <button type="submit" class="btn btn-warning btn-lg fw-bold px-5">
+                                        <i class="fas fa-save me-2"></i>Save All Settings
+                                    </button>
+                                    <a asp-action="Index" class="btn btn-outline-light btn-lg px-5">Back to Dashboard</a>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>

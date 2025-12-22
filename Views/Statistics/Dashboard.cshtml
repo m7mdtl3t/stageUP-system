@@ -303,10 +303,10 @@
     new Chart(document.getElementById('hourlyChart'), {
         type: 'bar',
         data: {
-            labels: hourlyData.map(h => h.hour),
+            labels: hourlyData.map(h => h.Hour),
             datasets: [{
                 label: 'Check-ins',
-                data: hourlyData.map(h => h.count),
+                data: hourlyData.map(h => h.Count),
                 backgroundColor: 'rgba(13, 110, 253, 0.7)',
                 borderColor: 'rgba(13, 110, 253, 1)',
                 borderWidth: 1
@@ -322,7 +322,7 @@
         data: {
             labels: ['Morning (6AM-12PM)', 'Afternoon (12PM-6PM)', 'Evening (6PM-12AM)', 'Night (12AM-6AM)'],
             datasets: [{
-                data: [distribution.morning, distribution.afternoon, distribution.evening, distribution.night],
+                data: [distribution.Morning, distribution.Afternoon, distribution.Evening, distribution.Night],
                 backgroundColor: [
                     'rgba(255, 193, 7, 0.7)',
                     'rgba(13, 202, 240, 0.7)',
@@ -349,18 +349,18 @@
     new Chart(document.getElementById('eventsChart'), {
         type: 'bar',
         data: {
-            labels: eventsData.map(e => e.eventName),
+            labels: eventsData.map(e => e.EventName),
             datasets: [
                 {
                     label: 'Attended',
-                    data: eventsData.map(e => e.attended),
+                    data: eventsData.map(e => e.Attended),
                     backgroundColor: 'rgba(25, 135, 84, 0.7)',
                     borderColor: 'rgba(25, 135, 84, 1)',
                     borderWidth: 1
                 },
                 {
                     label: 'Not Attended',
-                    data: eventsData.map(e => e.notAttended),
+                    data: eventsData.map(e => e.NotAttended),
                     backgroundColor: 'rgba(220, 53, 69, 0.7)',
                     borderColor: 'rgba(220, 53, 69, 1)',
                     borderWidth: 1
