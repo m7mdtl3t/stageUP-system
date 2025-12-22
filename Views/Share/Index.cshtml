@@ -7,6 +7,11 @@
     var eventName = Model.Event?.TicketTitle ?? Model.Event?.Name ?? "Event Name";
     var eventTime = Model.Event?.TicketTimeDisplay ?? "6:00 PM (Doors close 9:00 PM)";
     var welcomeMsg = Model.Event?.TicketWelcomeMessage ?? "You’re exclusively invited to the";
+
+    // Branding Vars
+    var primaryColor = Model.Event?.PrimaryColor ?? "#8B5CF6";
+    var secondaryColor = Model.Event?.SecondaryColor ?? "#0dcaf0";
+    var logoUrl = Model.Event?.LogoPath;
 }
 
 <!DOCTYPE html>
@@ -19,7 +24,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --vivuqe-primary: #8B5CF6;
+            --vivuqe-primary: @primaryColor;
+            --vivuqe-secondary: @secondaryColor;
             --vivuqe-dark: #1a1a2e;
             --vivuqe-darker: #0f0f1a;
         }
@@ -31,26 +37,15 @@
         }
         .card {
             background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(139,92,246,0.3);
+            border: 1px solid var(--vivuqe-primary); /* Uses var */
             border-radius: 16px;
         }
         .card-header {
-            background: rgba(139,92,246,0.1);
-            border-bottom: 1px solid rgba(139,92,246,0.2);
+            background: var(--vivuqe-primary);
+            opacity: 0.2;
+            border-bottom: 1px solid var(--vivuqe-primary);
         }
-        .list-group-item {
-            background: rgba(255,255,255,0.03);
-            border-color: rgba(255,255,255,0.1);
-        }
-        .btn-whatsapp {
-            background: #25D366;
-            border: none;
-            color: white;
-        }
-        .btn-whatsapp:hover {
-            background: #128C7E;
-            color: white;
-        }
+        /* ... existing styles ... */
         .header-icon {
             font-size: 3rem;
             color: var(--vivuqe-primary);
@@ -63,10 +58,17 @@
             <div class="col-12 col-lg-8">
                 <!-- Header -->
                 <div class="text-center mb-4">
-                    <i class="fas fa-share-alt header-icon mb-3"></i>
+                    @if (!string.IsNullOrEmpty(logoUrl))
+                    {
+                         <img src="@logoUrl" alt="Event Logo" class="mb-3 rounded img-fluid" style="max-height: 120px;">
+                    }
+                    else
+                    {
+                        <i class="fas fa-share-alt header-icon mb-3"></i>
+                    }
                     <h2>Hi @Model.Name! 👋</h2>
                     <p class="text-white-50">ابعت الانفيتيشن لجيستك من هنا</p>
-                    <span class="badge bg-primary fs-6">
+                    <span class="badge bg-primary fs-6" style="background-color: var(--vivuqe-primary) !important;">
                         <i class="fas fa-users me-1"></i>@Model.Guests.Count Guest
                     </span>
                 </div>
@@ -81,10 +83,10 @@
                     </ol>
                 </div>
 
-                <!-- Guest List -->
+                <!-- Guitar/Music Icon List or similar? No, guest list -->
                 <div class="card">
-                    <div class="card-header" style="background: rgba(139,92,246,0.2);">
-                        <h5 class="mb-0" style="color: white; font-weight: 700;"><i class="fas fa-list me-2" style="color: #8B5CF6;"></i>Guests</h5>
+                    <div class="card-header" style="background: rgba(255, 255, 255, 0.1);">
+                        <h5 class="mb-0" style="color: white; font-weight: 700;"><i class="fas fa-list me-2" style="color: var(--vivuqe-secondary);"></i>Guests</h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="list-group list-group-flush">
@@ -96,9 +98,9 @@
                                     guestPhone = "2" + guestPhone;
                                 }
                                 
-                            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3" style="background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); border-radius: 12px; margin-bottom: 8px;">
+                            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3" style="background: rgba(255,255,255,0.05); border: 1px solid var(--vivuqe-primary); border-radius: 12px; margin-bottom: 8px;">
                                     <div class="d-flex align-items-center gap-2">
-                                        <span style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); padding: 8px 16px; border-radius: 10px; font-weight: 700; color: white; font-size: 1rem;">
+                                        <span style="background: var(--vivuqe-primary); padding: 8px 16px; border-radius: 10px; font-weight: 700; color: white; font-size: 1rem;">
                                             <i class="fas fa-user me-2"></i>@guest.Name
                                         </span>
                                         @if (!string.IsNullOrEmpty(guest.PhoneNumber))
@@ -133,7 +135,7 @@
                         <small style="color: #a5b4fc;">© 2025 Developed by <strong style="color: white;">Muhamed Talaat</strong></small>
                     </div>
                     <div>
-                        <small style="color: #6b7280;">Powered by <strong style="color: #8B5CF6;">StageUP</strong> 💙</small>
+                        <small style="color: #6b7280;">Powered by <strong style="color: var(--vivuqe-primary);">StageUP</strong> 💙</small>
                     </div>
                 </div>
             </div>

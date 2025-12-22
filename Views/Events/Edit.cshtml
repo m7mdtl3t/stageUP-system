@@ -12,7 +12,8 @@
                     <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Event</h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit">
+                <div class="card-body">
+                    <form asp-action="Edit" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <input type="hidden" asp-for="EventId" />
                         
@@ -32,6 +33,38 @@
                                 <label asp-for="Location" class="form-label fw-bold">Location</label>
                                 <input asp-for="Location" class="form-control" />
                                 <span asp-validation-for="Location" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Branding Section -->
+                        <div class="card bg-light border-0 p-3 mb-3">
+                            <h6 class="mb-3 text-secondary"><i class="fas fa-palette me-2"></i>Branding & Customization</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="PrimaryColor" class="form-label">Primary Color</label>
+                                    <div class="input-group">
+                                        <input asp-for="PrimaryColor" type="color" class="form-control form-control-color" style="max-width: 50px;">
+                                        <input asp-for="PrimaryColor" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="SecondaryColor" class="form-label">Secondary Color</label>
+                                    <div class="input-group">
+                                        <input asp-for="SecondaryColor" type="color" class="form-control form-control-color" style="max-width: 50px;">
+                                        <input asp-for="SecondaryColor" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label asp-for="LogoFile" class="form-label">Update Logo</label>
+                                    <input asp-for="LogoFile" type="file" class="form-control" accept="image/*">
+                                    @if (!string.IsNullOrEmpty(Model.LogoPath))
+                                    {
+                                        <div class="mt-2">
+                                            <p class="mb-1 text-muted small">Current Logo:</p>
+                                            <img src="@Model.LogoPath" alt="Current Logo" class="img-thumbnail" style="max-height: 100px;">
+                                        </div>
+                                    }
+                                </div>
                             </div>
                         </div>
 

@@ -86,10 +86,26 @@ namespace VivuqeQRSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("EventId,Name,Date,Location,IsActive")] Event @event)
+        public async Task<IActionResult> Create([Bind("EventId,Name,Date,Location,IsActive,PrimaryColor,SecondaryColor,LogoFile")] Event @event)
         {
             if (ModelState.IsValid)
             {
+                // Handle Logo Upload
+                if (@event.LogoFile != null && @event.LogoFile.Length > 0)
+                {
+                    string uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "events");
+                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + @event.LogoFile.FileName;
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await @event.LogoFile.CopyToAsync(fileStream);
+                    }
+                    @event.LogoPath = "/images/events/" + uniqueFileName;
+                }
+
                 _context.Add(@event);
                 await _context.SaveChangesAsync();
                 await _auditService.LogAsync("Create", "Event", @event.EventId.ToString(), $"Created event '{@event.Name}'");
@@ -113,7 +129,7 @@ namespace VivuqeQRSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,Name,Date,Location,IsActive")] Event @event)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,Name,Date,Location,IsActive,PrimaryColor,SecondaryColor,LogoFile")] Event @event)
         {
             if (id != @event.EventId) return NotFound();
 
@@ -121,6 +137,31 @@ namespace VivuqeQRSystem.Controllers
             {
                 try
                 {
+                    // Handle Logo Upload
+                    if (@event.LogoFile != null && @event.LogoFile.Length > 0)
+                    {
+                        string uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "events");
+                        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + @event.LogoFile.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await @event.LogoFile.CopyToAsync(fileStream);
+                        }
+                        @event.LogoPath = "/images/events/" + uniqueFileName;
+                    }
+                    else
+                    {
+                        // Keep old logo if not changed
+                        var oldEvent = await _context.Events.AsNoTracking().FirstOrDefaultAsync(e => e.EventId == id);
+                        if (oldEvent != null)
+                        {
+                            @event.LogoPath = oldEvent.LogoPath;
+                        }
+                    }
+
                     _context.Update(@event);
                     await _context.SaveChangesAsync();
                     await _auditService.LogAsync("Update", "Event", @event.EventId.ToString(), $"Updated event '{@event.Name}'");

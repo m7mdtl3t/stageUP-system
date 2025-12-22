@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace VivuqeQRSystem.Models
 {
@@ -45,6 +47,22 @@ namespace VivuqeQRSystem.Models
         [Display(Name = "Welcome Message")]
         [StringLength(200)]
         public string? TicketWelcomeMessage { get; set; } // e.g. "You’re exclusively invited to..."
+
+        // Branding Settings
+        [Display(Name = "Primary Color")]
+        [StringLength(7)] // Hex code #RRGGBB
+        public string? PrimaryColor { get; set; } = "#6f42c1"; // Default purple
+
+        [Display(Name = "Secondary Color")]
+        [StringLength(7)]
+        public string? SecondaryColor { get; set; } = "#0dcaf0"; // Default cyan
+
+        [Display(Name = "Event Logo")]
+        public string? LogoPath { get; set; } // Path to stored logo image
+
+        [NotMapped]
+        [Display(Name = "Upload Logo")]
+        public IFormFile? LogoFile { get; set; }
 
         public virtual ICollection<Senior> Seniors { get; set; } = new List<Senior>();
     }

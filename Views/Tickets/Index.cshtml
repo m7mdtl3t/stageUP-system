@@ -8,6 +8,11 @@
     // logic for map link
     var defaultMap = $"https://www.google.com/maps/search/?api=1&query={Uri.EscapeDataString(location)}";
     var mapLink = !string.IsNullOrEmpty(Model.Senior?.Event?.TicketMapUrl) ? Model.Senior?.Event?.TicketMapUrl : defaultMap;
+
+    // Branding Vars
+    var primaryColor = Model.Senior?.Event?.PrimaryColor ?? "#ff00cc";
+    var secondaryColor = Model.Senior?.Event?.SecondaryColor ?? "#333399";
+    var logoUrl = Model.Senior?.Event?.LogoPath;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -49,7 +54,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; height: 6px;
-            background: linear-gradient(90deg, #ff00cc, #333399);
+            background: linear-gradient(90deg, @primaryColor, @secondaryColor);
         }
         .qr-frame {
             background: white;
@@ -84,7 +89,7 @@
             text-transform: uppercase;
             letter-spacing: 3px;
             font-size: 0.75rem;
-            color: #ff00cc;
+            color: @primaryColor;
             font-weight: 700;
             margin-bottom: 15px;
             opacity: 0.9;
@@ -150,6 +155,12 @@
         <!-- Content Wrapper -->
         <div id="ticketContent" style="filter: blur(10px); transition: filter 0.5s ease;">
             <!-- ... existing content ... -->
+            <!-- ... existing content ... -->
+            @if (!string.IsNullOrEmpty(logoUrl))
+            {
+                 <img src="@logoUrl" alt="Event Logo" class="mb-4" style="max-height: 80px; max-width: 180px;">
+            }
+            
             <div class="ticket-label">Official Entry Ticket</div>
             
             <h1 class="guest-name">@Model.Name</h1>

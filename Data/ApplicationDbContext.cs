@@ -26,6 +26,13 @@ namespace VivuqeQRSystem.Data
                 entity.HasKey(e => e.SeniorId);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.QrUrl).HasMaxLength(500);
+                
+                // Indexes for performance
+                entity.HasIndex(e => e.Name);
+                entity.HasIndex(e => e.PhoneNumber);
+                entity.HasIndex(e => e.EventId);
+                entity.HasIndex(e => e.ShareToken);
+
                 entity.HasMany(e => e.Guests)
                       .WithOne(e => e.Senior)
                       .HasForeignKey(e => e.SeniorId)
@@ -37,10 +44,24 @@ namespace VivuqeQRSystem.Data
             {
                 entity.HasKey(e => e.GuestId);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+                
+                // Indexes for performance
+                entity.HasIndex(e => e.Name);
+                entity.HasIndex(e => e.PhoneNumber);
+                entity.HasIndex(e => e.IsAttended);
+                entity.HasIndex(e => e.TicketToken);
+
                 entity.HasOne(e => e.Senior)
                       .WithMany(e => e.Guests)
                       .HasForeignKey(e => e.SeniorId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure Event entity
+            modelBuilder.Entity<Event>(entity =>
+            {
+                entity.HasIndex(e => e.Date);
+                entity.HasIndex(e => e.IsActive);
             });
 
             // Configure User entity
